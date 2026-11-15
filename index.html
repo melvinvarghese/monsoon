@@ -288,6 +288,22 @@
     });
     const water=new THREE.Mesh(waterGeo,waterMat);water.renderOrder=2;scene.add(water);
 
+    // A distant two-step cascade gives the valley a visible destination.
+    const falls=[];
+    const fallMat=new THREE.ShaderMaterial({
+      transparent:true,depthWrite:false,side:THREE.DoubleSide,
+      uniforms:{uTime:{value:0}},
+      vertexShader:"varying vec2 vUv;uniform float uTime;void main(){vUv=uv;vec3 p=position;p.x+=sin(uv.y*5.0+uTime*1.4)*.035;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}",
+      fragmentShader:"varying vec2 vUv;uniform float uTime;void main(){float streak=pow(max(0.0,sin(vUv.x*72.0+sin(vUv.y*19.0+uTime)*2.0)),8.0);float flow=.5+.5*sin(vUv.y*48.0-uTime*4.5+sin(vUv.x*13.0)*1.2);float foam=(1.0-smoothstep(0.0,.22,vUv.y));vec3 col=mix(vec3(.16,.34,.34),vec3(.66,.78,.73),flow*.42+streak*.5);col=mix(col,vec3(.82,.88,.82),foam*.75);float alpha=.48+flow*.22+foam*.22;gl_FragColor=vec4(col,alpha);}"
+    });
+    const fallZ=-96,fallX=riverX(fallZ),fallBase=terrainHeight(fallX,fallZ)+.35;
+    const fallOne=new THREE.Mesh(new THREE.PlaneGeometry(7.5,10,12,18),fallMat);fallOne.position.set(fallX,fallBase+5,fallZ);scene.add(fallOne);falls.push(fallOne);
+    const fallTwo=new THREE.Mesh(new THREE.PlaneGeometry(4.2,4.8,10,12),fallMat);fallTwo.position.set(fallX+1.1,fallBase+2.4,fallZ+1.2);fallTwo.rotation.y=.12;scene.add(fallTwo);falls.push(fallTwo);
+    const fallPool=new THREE.Mesh(new THREE.CircleGeometry(5.5,40),new THREE.MeshStandardMaterial({color:0x416f69,roughness:.22,metalness:.08,transparent:true,opacity:.82}));
+    fallPool.rotation.x=-Math.PI/2;fallPool.position.set(fallX,fallBase+.08,fallZ+3.4);scene.add(fallPool);
+    const fallRockGeo=new THREE.DodecahedronGeometry(1,1),fallRockMat=new THREE.MeshStandardMaterial({color:0x4b5b4e,roughness:1});
+    for(let n=0;n<8;n++){const rock=new THREE.Mesh(fallRockGeo,fallRockMat);const side=n%2?1:-1;rock.position.set(fallX+side*(4.5+Math.random()*2),fallBase+Math.random()*2,fallZ+(Math.random()-.5)*7);rock.scale.set(1.3+Math.random()*1.8,.8+Math.random()*1.5,1+Math.random()*1.5);rock.rotation.set(Math.random(),Math.random(),Math.random());rock.castShadow=!isMobile;scene.add(rock);}
+
     // Distant cloud banks and drifting valley mist.
     setProgress(80,"Gathering the monsoon mist");
     const cloudMat=new THREE.MeshBasicMaterial({color:0xe1e9e2,transparent:true,opacity:.13,depthWrite:false});
@@ -354,6 +370,7 @@
       requestAnimationFrame(animate);
       const dt=Math.min(clock.getDelta(),.04);elapsed+=dt;
       waterMat.uniforms.uTime.value=elapsed;
+      fallMat.uniforms.uTime.value=elapsed;
       if(leafMat.userData.windUniform)leafMat.userData.windUniform.value=elapsed;
       for(const cloud of clouds){cloud.position.x+=cloud.userData.speed*dt;if(cloud.position.x>145)cloud.position.x=-145;}
       const mp=mistGeo.attributes.position;
