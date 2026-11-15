@@ -294,7 +294,7 @@
         trailVertices.push(x,terrainHeight(x,z)+.19,z);
         trailUvs.push(side,t*34);
       }
-      if(i<trailSteps){const q=i*2;trailIndices.push(q,q+2,q+1,q+1,q+2,q+3);}
+      if(i<trailSteps){const q=i*2;trailIndices.push(q,q+1,q+2,q+1,q+3,q+2);}
     }
     const trailGeo=new THREE.BufferGeometry();
     trailGeo.setAttribute("position",new THREE.Float32BufferAttribute(trailVertices,3));
