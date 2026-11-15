@@ -84,12 +84,12 @@
       <div class="eyebrow">A quiet place in Kerala</div>
       <h1>MONSOON</h1>
       <div class="intro-line"></div>
-      <p class="intro-copy">Somewhere in the mountains, the rain has just passed. The forest is breathing again.</p>
+      <p class="intro-copy">Somewhere in the mountains, the rain has just passed. The forest is breathing again. Follow the old footpath into the valley.</p>
       <button class="enter" id="enterButton">Enter the landscape <span aria-hidden="true">↗</span></button>
       <div class="intro-note">Wander with keyboard and mouse, or use touch controls on your phone.</div>
     </div>
   </section>
-  <div class="hud" id="hud"><span class="crosshair"></span><span class="hud-text">Wander at your own pace</span></div>
+  <div class="hud" id="hud"><span class="crosshair"></span><span class="hud-text">Follow the valley, at your own pace</span></div>
   <div class="controls" id="controls">
     <button class="icon-btn" id="soundButton" aria-label="Toggle sound" title="Sound"><svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4H4z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></button>
     <button class="icon-btn" id="helpButton" aria-label="Show controls" title="Controls"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.1 1.7c-1.1 1-1.8 1.3-1.8 3M12 17h.01"/></svg></button>
@@ -193,7 +193,23 @@
       colors.push(col.r,col.g,col.b);
     }
     terrainGeo.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));terrainGeo.computeVertexNormals();
-    const terrain=new THREE.Mesh(terrainGeo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.96,metalness:0}));
+    // Procedural soil detail: broad damp-earth mottling with fine mineral and leaf-litter flecks.
+    const soilCanvas=document.createElement("canvas");soilCanvas.width=soilCanvas.height=512;
+    const soilCtx=soilCanvas.getContext("2d");
+    soilCtx.fillStyle="#777b5e";soilCtx.fillRect(0,0,512,512);
+    for(let i=0;i<1800;i++){
+      const x=random()*512,y=random()*512,r=2+random()*23;
+      soilCtx.fillStyle=random()>.5?"rgba(30,49,31,"+(0.018+random()*.055)+")":"rgba(206,190,143,"+(0.012+random()*.045)+")";
+      soilCtx.beginPath();soilCtx.ellipse(x,y,r,r*(.3+random()*.7),random()*Math.PI,0,Math.PI*2);soilCtx.fill();
+    }
+    for(let i=0;i<8500;i++){
+      const x=random()*512,y=random()*512;
+      soilCtx.fillStyle=random()>.52?"rgba(24,37,24,.12)":"rgba(220,207,166,.10)";
+      soilCtx.fillRect(x,y,1+random()*2,1+random()*2);
+    }
+    const soilTexture=new THREE.CanvasTexture(soilCanvas);soilTexture.wrapS=soilTexture.wrapT=THREE.RepeatWrapping;soilTexture.repeat.set(18,18);soilTexture.colorSpace=THREE.SRGBColorSpace;soilTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+    const soilBump=soilTexture.clone();soilBump.colorSpace=THREE.NoColorSpace;
+    const terrain=new THREE.Mesh(terrainGeo,new THREE.MeshStandardMaterial({map:soilTexture,bumpMap:soilBump,bumpScale:.16,vertexColors:true,roughness:1,metalness:0}));
     terrain.receiveShadow=true;scene.add(terrain);
 
     // Sculpted mountain walls: overlapping ridge silhouettes with natural variation.
@@ -264,6 +280,29 @@
       rocks.setColorAt(i,new THREE.Color().setHSL(.32,.08,.28+random()*.13));
     }
     rocks.castShadow=!isMobile;rocks.receiveShadow=true;scene.add(rocks);
+
+    // A narrow, uneven footpath follows the stream toward the waterfall.
+    // It is deliberately subtle: a trace of compacted earth through the wet forest.
+    const trailVertices=[],trailUvs=[],trailIndices=[];
+    const trailSteps=220;
+    for(let i=0;i<=trailSteps;i++){
+      const t=i/trailSteps,z=88-t*180;
+      const center=riverX(z)+5.9+Math.sin(z*.052)*.55;
+      const width=1.25+Math.sin(t*Math.PI*13)*.12;
+      for(let side=0;side<2;side++){
+        const x=center+(side===0?-width:width);
+        trailVertices.push(x,terrainHeight(x,z)+.19,z);
+        trailUvs.push(side,t*34);
+      }
+      if(i<trailSteps){const q=i*2;trailIndices.push(q,q+2,q+1,q+1,q+2,q+3);}
+    }
+    const trailGeo=new THREE.BufferGeometry();
+    trailGeo.setAttribute("position",new THREE.Float32BufferAttribute(trailVertices,3));
+    trailGeo.setAttribute("uv",new THREE.Float32BufferAttribute(trailUvs,2));
+    trailGeo.setIndex(trailIndices);trailGeo.computeVertexNormals();
+    const trailTexture=soilTexture.clone();trailTexture.repeat.set(1.4,34);trailTexture.needsUpdate=true;
+    const trail=new THREE.Mesh(trailGeo,new THREE.MeshStandardMaterial({map:trailTexture,color:0x8b795e,roughness:1,transparent:true,opacity:.92,polygonOffset:true,polygonOffsetFactor:-1}));
+    trail.receiveShadow=true;scene.add(trail);
 
     // A shallow winding stream: a ribbon mesh with gently animated water.
     setProgress(68,"Drawing the mountain stream");
