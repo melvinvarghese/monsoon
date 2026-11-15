@@ -49,6 +49,13 @@
     .key{color:#9eafa1}
     .toast{position:fixed;z-index:6;left:50%;bottom:80px;transform:translate(-50%,10px);padding:9px 14px;border:1px solid var(--line);background:rgba(9,20,16,.8);font-size:10px;letter-spacing:.08em;color:#e4eee3;opacity:0;transition:.3s;pointer-events:none}
     .toast.show{opacity:1;transform:translate(-50%,0)}
+    .touch-ui{position:fixed;z-index:4;inset:0;display:none;pointer-events:none}
+    .touch-stick{position:absolute;left:24px;bottom:26px;width:126px;height:126px;border:1px solid rgba(235,245,235,.34);border-radius:50%;background:rgba(9,24,18,.22);backdrop-filter:blur(5px);pointer-events:auto;touch-action:none}
+    .touch-knob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border:1px solid rgba(235,245,235,.58);border-radius:50%;background:rgba(205,225,205,.25);box-shadow:0 2px 16px #07110d66}
+    .touch-look{position:absolute;right:0;top:15%;bottom:0;width:55%;pointer-events:auto;touch-action:none}
+    .touch-hint{position:absolute;right:22px;bottom:34px;color:rgba(240,247,239,.68);font-size:9px;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 8px #07110d}
+    .touch-ui.active{display:block}
+    @media(max-width:700px){.touch-stick{width:112px;height:112px;left:18px;bottom:22px}.touch-knob{width:44px;height:44px;margin:-22px}}
     .loader{position:fixed;z-index:10;inset:0;display:grid;place-items:center;background:#14241f;transition:opacity .8s,visibility .8s}
     .loader.done{opacity:0;visibility:hidden}
     .loader-inner{text-align:center}
@@ -79,7 +86,7 @@
       <div class="intro-line"></div>
       <p class="intro-copy">Somewhere in the mountains, the rain has just passed. The forest is breathing again.</p>
       <button class="enter" id="enterButton">Enter the landscape <span aria-hidden="true">↗</span></button>
-      <div class="intro-note">Best experienced with headphones · Desktop controls supported</div>
+      <div class="intro-note">Wander with keyboard and mouse, or use touch controls on your phone.</div>
     </div>
   </section>
   <div class="hud" id="hud"><span class="crosshair"></span><span class="hud-text">Wander at your own pace</span></div>
@@ -88,6 +95,7 @@
     <button class="icon-btn" id="helpButton" aria-label="Show controls" title="Controls"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.1 1.7c-1.1 1-1.8 1.3-1.8 3M12 17h.01"/></svg></button>
   </div>
   <aside class="help" id="helpPanel"><div class="help-title">How to wander</div><div class="key-row"><span>Move</span><span class="key">W A S D</span></div><div class="key-row"><span>Look around</span><span class="key">Mouse</span></div><div class="key-row"><span>Walk faster</span><span class="key">Shift</span></div><div class="key-row"><span>Release pointer</span><span class="key">Esc</span></div><div class="key-row"><span>Sound</span><span class="key">M</span></div></aside>
+  <div class="touch-ui" id="touchUI"><div class="touch-look" id="touchLook" aria-label="Drag to look around"></div><div class="touch-stick" id="touchStick" aria-label="Virtual movement joystick"><div class="touch-knob" id="touchKnob"></div></div><div class="touch-hint">Drag to look · Joystick to walk</div></div>
   <div class="toast" id="toast"></div>
 
   <script type="module">
@@ -102,6 +110,10 @@
     const controlsUI = document.getElementById("controls");
     const helpPanel = document.getElementById("helpPanel");
     const toast = document.getElementById("toast");
+    const touchUI = document.getElementById("touchUI");
+    const touchStick = document.getElementById("touchStick");
+    const touchKnob = document.getElementById("touchKnob");
+    const touchLook = document.getElementById("touchLook");
 
     const isMobile = matchMedia("(pointer: coarse)").matches || innerWidth < 700;
     const quality = isMobile ? 0.68 : 1;
@@ -124,6 +136,8 @@
     const keys = {};
     let started = false, soundOn = false, audioContext = null, masterGain = null;
     let yaw = 0, pitch = -0.06, pointerLocked = false;
+    const touchMove = {x:0,y:0};
+    let stickPointer = null, lookPointer = null, lastLookX = 0, lastLookY = 0;
     let toastTimer = null;
     const clamp = THREE.MathUtils.clamp;
     const lerp = THREE.MathUtils.lerp;
@@ -313,10 +327,19 @@
     document.getElementById("helpButton").addEventListener("click",()=>helpPanel.classList.toggle("open"));
     document.getElementById("enterButton").addEventListener("click",()=>{
       started=true;intro.classList.add("hidden");hud.classList.add("visible");controlsUI.classList.add("visible");
-      if(!isMobile){renderer.domElement.requestPointerLock?.();}else{showToast("Touch movement is coming in the next update");}
+      if(!isMobile){renderer.domElement.requestPointerLock?.();}else{touchUI.classList.add("active");showToast("Use the joystick to walk and drag to look");}
       if(soundOn)beginAudio();
     });
     document.addEventListener("pointerlockchange",()=>{pointerLocked=document.pointerLockElement===renderer.domElement;if(started&&!pointerLocked&&!isMobile){intro.classList.remove("hidden");}});
+    touchStick.addEventListener("pointerdown",e=>{if(!started)return;stickPointer=e.pointerId;touchStick.setPointerCapture(e.pointerId);updateStick(e);e.preventDefault();});
+    function updateStick(e){const r=touchStick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.34,len=Math.hypot(dx,dy)||1,k=Math.min(1,max/len);touchMove.x=dx/max*k;touchMove.y=dy/max*k;touchKnob.style.transform="translate("+dx*k+"px,"+dy*k+"px)";}
+    touchStick.addEventListener("pointermove",e=>{if(e.pointerId===stickPointer)updateStick(e);});
+    function releaseStick(e){if(e.pointerId!==stickPointer)return;stickPointer=null;touchMove.x=touchMove.y=0;touchKnob.style.transform="translate(0,0)";}
+    touchStick.addEventListener("pointerup",releaseStick);touchStick.addEventListener("pointercancel",releaseStick);
+    touchLook.addEventListener("pointerdown",e=>{if(!started)return;lookPointer=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;touchLook.setPointerCapture(e.pointerId);e.preventDefault();});
+    touchLook.addEventListener("pointermove",e=>{if(e.pointerId!==lookPointer)return;const dx=e.clientX-lastLookX,dy=e.clientY-lastLookY;lastLookX=e.clientX;lastLookY=e.clientY;yaw-=dx*.004;pitch=clamp(pitch-dy*.003,-1.2,1.05);});
+    function releaseLook(e){if(e.pointerId===lookPointer)lookPointer=null;}
+    touchLook.addEventListener("pointerup",releaseLook);touchLook.addEventListener("pointercancel",releaseLook);
     document.addEventListener("mousemove",e=>{if(!pointerLocked)return;yaw-=e.movementX*.0022;pitch-=e.movementY*.0018;pitch=clamp(pitch,-1.25,1.15);});
     document.addEventListener("keydown",e=>{keys[e.code]=true;if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();if(e.code==="KeyM")toggleSound();if(e.code==="Escape")helpPanel.classList.remove("open");});
     document.addEventListener("keyup",e=>{keys[e.code]=false;});
@@ -336,10 +359,10 @@
         camera.rotation.order="YXZ";camera.rotation.y=yaw;camera.rotation.x=pitch;
         forward.set(-Math.sin(yaw),0,-Math.cos(yaw));right.set(Math.cos(yaw),0,-Math.sin(yaw));
         move.set(0,0,0);
-        if(keys.KeyW||keys.ArrowUp)move.add(forward);
-        if(keys.KeyS||keys.ArrowDown)move.sub(forward);
-        if(keys.KeyD||keys.ArrowRight)move.add(right);
-        if(keys.KeyA||keys.ArrowLeft)move.sub(right);
+        if(keys.KeyW||keys.ArrowUp||touchMove.y<-.12)move.addScaledVector(forward,Math.max(0,-touchMove.y));
+        if(keys.KeyS||keys.ArrowDown||touchMove.y>.12)move.addScaledVector(forward,-Math.max(0,touchMove.y));
+        if(keys.KeyD||keys.ArrowRight||touchMove.x>.12)move.addScaledVector(right,Math.max(0,touchMove.x));
+        if(keys.KeyA||keys.ArrowLeft||touchMove.x<-.12)move.addScaledVector(right,-Math.max(0,-touchMove.x));
         if(move.lengthSq()>0){move.normalize();const speed=keys.ShiftLeft||keys.ShiftRight?13:6.2;camera.position.addScaledVector(move,speed*dt);}
         camera.position.x=clamp(camera.position.x,-112,112);camera.position.z=clamp(camera.position.z,-112,112);
         const ground=terrainHeight(camera.position.x,camera.position.z)+1.72;
