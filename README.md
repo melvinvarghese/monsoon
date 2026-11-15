@@ -13,8 +13,9 @@ The experience is a static site. It does not require a server, account, backend,
 ## Current build
 
 **Batch 1 — Foundation**
-- Procedural valley terrain and distant mountain ridges
-- Instanced forest canopy, undergrowth and mossy rocks
+- Higher-resolution folded valley terrain and layered, sculpted Western Ghats ridge meshes
+- Instanced broadleaf rainforest canopy with branching trunks, curved fern fans and mossy rocks
+- Wind-swaying canopy shader and atmospheric sky gradient
 - A winding mountain stream with animated water
 - Drifting cloud banks and low valley mist
 - First-person keyboard movement and mouse-look
@@ -37,7 +38,7 @@ On desktop, click **Enter the landscape** to capture the pointer. Press Escape t
 
 ## Development
 
-The first milestone is intentionally a static, dependency-light project. Open `index.html` through a local static server while developing; ES modules are not reliably loaded from `file://` URLs.
+The project is a static site with a real-time Three.js scene and procedural geometry. Open `index.html` through a local static server while developing; ES modules are not reliably loaded from `file://` URLs.
 
 ## Roadmap
 
