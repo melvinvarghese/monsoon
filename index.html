@@ -281,6 +281,7 @@
     const shrubGeo=new THREE.IcosahedronGeometry(1,1);
     const shrubCount=isMobile?330:690;
     const shrubs=new THREE.InstancedMesh(shrubGeo,leafMat,shrubCount*3);
+    let shrubN=0;
     for(let i=0;i<shrubCount;i++){
       const x=(random()-.5)*236,z=(random()-.5)*236;
       if(Math.abs(x-riverX(z))<7 || (Math.abs(x)<10&&z>0&&z<58))continue;
@@ -291,11 +292,11 @@
         dummy.position.set(x+Math.cos(a)*spread,y+radius*(.55+random()*.22),z+Math.sin(a)*spread);
         dummy.rotation.set(random()*.35,random()*Math.PI*2,random()*.35);
         dummy.scale.set(radius*(.8+random()*.6),radius*(.65+random()*.55),radius*(.8+random()*.6));
-        dummy.updateMatrix();shrubs.setMatrixAt(i*3+k,dummy.matrix);
-        shrubs.setColorAt(i*3+k,new THREE.Color().setHSL(hue,.4,light+random()*.05));
+        dummy.updateMatrix();shrubs.setMatrixAt(shrubN,dummy.matrix);
+        shrubs.setColorAt(shrubN,new THREE.Color().setHSL(hue,.4,light+random()*.05));shrubN++;
       }
     }
-    shrubs.castShadow=!isMobile;scene.add(shrubs);
+    shrubs.count=shrubN;shrubs.castShadow=!isMobile;scene.add(shrubs);
     // Broadleaf fern fans built from curved, individually tapered leaflets.
     setProgress(55,"Layering the forest understory");
     function createFernFan(){
