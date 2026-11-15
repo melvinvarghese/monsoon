@@ -116,7 +116,6 @@
     const touchLook = document.getElementById("touchLook");
 
     const isMobile = matchMedia("(pointer: coarse)").matches || innerWidth < 700;
-    const quality = isMobile ? 0.62 : 0.88;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x8fa69e);
     const skyGeo=new THREE.SphereGeometry(470,32,20);
@@ -125,7 +124,7 @@
       fragmentShader:"varying float vHeight;void main(){float h=clamp(vHeight*.5+.5,0.0,1.0);vec3 horizon=vec3(0.63,0.73,0.69);vec3 zenith=vec3(0.20,0.34,0.32);vec3 col=mix(horizon,zenith,pow(h,.72));float glow=pow(max(0.0,1.0-abs(h-.58)*5.0),3.0);col+=vec3(.12,.13,.10)*glow;gl_FragColor=vec4(col,1.0);}"
     });
     scene.add(new THREE.Mesh(skyGeo,skyMat));
-    scene.fog = new THREE.FogExp2(0x9aada4, 0.0095);
+    scene.fog = new THREE.FogExp2(0x91a69c, 0.0078);
     const camera = new THREE.PerspectiveCamera(68, innerWidth / innerHeight, 0.1, 650);
     camera.position.set(0, 4.2, 18);
     const renderer = new THREE.WebGLRenderer({antialias: !isMobile, alpha:false, powerPreference:"high-performance"});
@@ -135,7 +134,7 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.16;
     mount.appendChild(renderer.domElement);
 
     const clock = new THREE.Clock();
@@ -158,6 +157,14 @@
     }
     function fbm(x,z){let n=0,a=.55,f=.045;for(let i=0;i<4;i++){n+=smoothNoise(x*f,z*f)*a;a*=.5;f*=2.03;}return n;}
     function riverX(z){return Math.sin(z*.027)*7+Math.sin(z*.071)*1.7;}
+    // Broad forest pockets frame the valley instead of distributing trees uniformly.
+    function forestDensity(x,z){
+      const pockets=.54+.20*Math.sin(x*.031+z*.018)*Math.cos(z*.026-x*.014)+.14*Math.sin(x*.012-z*.017);
+      const riverOpening=clamp((Math.abs(x-riverX(z))-9)/13,0,1);
+      const pathX=riverX(z)+5.9+Math.sin(z*.052)*.55;
+      const pathOpening=clamp((Math.abs(x-pathX)-2.5)/8,0,1);
+      return clamp(pockets*riverOpening*pathOpening,.08,.9);
+    }
     function terrainHeight(x,z){
       const center=riverX(z);
       const valley=(1-Math.exp(-Math.pow((x-center)/25,2)))*7.5;
@@ -169,8 +176,8 @@
     }
     function setProgress(n,label){loaderFill.style.width=n+"%";if(label)loaderLabel.textContent=label;}
 
-    const hemi = new THREE.HemisphereLight(0xdce9e1,0x34483a,2.05);scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffe5c0,2.25);sun.position.set(-65,95,35);sun.castShadow=!isMobile;sun.shadow.mapSize.set(768,768);sun.shadow.camera.left=-85;sun.shadow.camera.right=85;sun.shadow.camera.top=85;sun.shadow.camera.bottom=-85;sun.shadow.bias=-.00025;scene.add(sun);
+    const hemi = new THREE.HemisphereLight(0xdce9e1,0x34483a,1.35);scene.add(hemi);
+    const sun = new THREE.DirectionalLight(0xffe5c0,2.65);sun.position.set(-65,95,35);sun.castShadow=!isMobile;sun.shadow.mapSize.set(768,768);sun.shadow.camera.left=-85;sun.shadow.camera.right=85;sun.shadow.camera.top=85;sun.shadow.camera.bottom=-85;sun.shadow.bias=-.00025;scene.add(sun);
     const fill = new THREE.DirectionalLight(0xa9c8c0,.55);fill.position.set(70,35,-80);scene.add(fill);
 
     // Sculpt the broad valley from a deterministic height field.
@@ -196,20 +203,35 @@
     // Procedural soil detail: broad damp-earth mottling with fine mineral and leaf-litter flecks.
     const soilCanvas=document.createElement("canvas");soilCanvas.width=soilCanvas.height=256;
     const soilCtx=soilCanvas.getContext("2d");
-    soilCtx.fillStyle="#777b5e";soilCtx.fillRect(0,0,512,512);
+    soilCtx.fillStyle="#777b5e";soilCtx.fillRect(0,0,256,256);
     for(let i=0;i<700;i++){
-      const x=random()*512,y=random()*512,r=2+random()*23;
+      const x=random()*256,y=random()*256,r=1+random()*12;
       soilCtx.fillStyle=random()>.5?"rgba(30,49,31,"+(0.018+random()*.055)+")":"rgba(206,190,143,"+(0.012+random()*.045)+")";
       soilCtx.beginPath();soilCtx.ellipse(x,y,r,r*(.3+random()*.7),random()*Math.PI,0,Math.PI*2);soilCtx.fill();
     }
     for(let i=0;i<2600;i++){
-      const x=random()*512,y=random()*512;
+      const x=random()*256,y=random()*256;
       soilCtx.fillStyle=random()>.52?"rgba(24,37,24,.12)":"rgba(220,207,166,.10)";
       soilCtx.fillRect(x,y,1+random()*2,1+random()*2);
     }
     const soilTexture=new THREE.CanvasTexture(soilCanvas);soilTexture.wrapS=soilTexture.wrapT=THREE.RepeatWrapping;soilTexture.repeat.set(14,14);soilTexture.colorSpace=THREE.SRGBColorSpace;soilTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
     const soilBump=soilTexture.clone();soilBump.colorSpace=THREE.NoColorSpace;
-    const terrain=new THREE.Mesh(terrainGeo,new THREE.MeshStandardMaterial({map:soilTexture,bumpMap:soilBump,bumpScale:.16,vertexColors:true,roughness:1,metalness:0}));
+    const terrainMat=new THREE.MeshStandardMaterial({map:soilTexture,bumpMap:soilBump,bumpScale:.12,vertexColors:true,roughness:1,metalness:0});
+    // Fine wet-earth variation is calculated in the shader, not built from extra geometry.
+    terrainMat.onBeforeCompile=(shader)=>{
+      shader.vertexShader=shader.vertexShader.replace("#include <common>","#include <common>\\nvarying vec3 vTerrainWorld;");
+      shader.vertexShader=shader.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\\nvTerrainWorld=(modelMatrix*vec4(transformed,1.0)).xyz;");
+      shader.fragmentShader=shader.fragmentShader.replace("#include <common>","#include <common>\\nvarying vec3 vTerrainWorld;");
+      const detail="\\nfloat broadGrain=sin(vTerrainWorld.x*.19+sin(vTerrainWorld.z*.13))*sin(vTerrainWorld.z*.17-vTerrainWorld.x*.11);"+
+        "\\nfloat fineGrain=sin(vTerrainWorld.x*2.7+vTerrainWorld.z*1.9)*sin(vTerrainWorld.z*3.1-vTerrainWorld.x*2.2);"+
+        "\\nfloat cell=fract(sin(dot(floor(vTerrainWorld.xz*1.35),vec2(127.1,311.7)))*43758.5453);"+
+        "\\nfloat riverLine=sin(vTerrainWorld.z*.027)*7.0+sin(vTerrainWorld.z*.071)*1.7;"+
+        "\\nfloat damp=exp(-abs(vTerrainWorld.x-riverLine)*.105);"+
+        "\\ndiffuseColor.rgb*=.94+broadGrain*.045+fineGrain*.012+(cell-.5)*.035;"+
+        "\\ndiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.66,.80,.72),damp*.28);\\n";
+      shader.fragmentShader=shader.fragmentShader.replace("#include <color_fragment>","#include <color_fragment>"+detail);
+    };
+    const terrain=new THREE.Mesh(terrainGeo,terrainMat);
     terrain.receiveShadow=true;scene.add(terrain);
 
     // Sculpted mountain walls: overlapping ridge silhouettes with natural variation.
@@ -250,7 +272,7 @@
     const dummy=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),axis=new THREE.Vector3();
     function putSegment(mesh,index,start,end,r){axis.subVectors(end,start);dummy.position.copy(start).add(end).multiplyScalar(.5);dummy.quaternion.setFromUnitVectors(up,axis.clone().normalize());dummy.scale.set(r,axis.length(),r);dummy.updateMatrix();mesh.setMatrixAt(index,dummy.matrix);}
     let treeN=0,branchN=0,leafN=0,tries=0;
-    while(treeN<treeCount&&tries<treeCount*12){tries++;const x=(random()-.5)*244,z=(random()-.5)*244;if(Math.abs(x-riverX(z))<10||(Math.abs(x)<9&&z>0&&z<58))continue;
+    while(treeN<treeCount&&tries<treeCount*12){tries++;const x=(random()-.5)*244,z=(random()-.5)*244;if(Math.abs(x-riverX(z))<10||(Math.abs(x)<9&&z>0&&z<58)||random()>forestDensity(x,z))continue;
       const y=terrainHeight(x,z),h=5.5+random()*5.8,spread=2.8+random()*2.6,lx=(random()-.5)*1.2,lz=(random()-.5)*1.2;
       const base=new THREE.Vector3(x,y,z),top=new THREE.Vector3(x+lx,y+h,z+lz);putSegment(trunks,treeN,base,top,.22+random()*.13);
       for(let k=0;k<3;k++){const t=.48+k*.13,root=new THREE.Vector3(x+lx*t,y+h*t,z+lz*t),ang=random()*Math.PI*2,len=spread*(.65+random()*.55),tip=root.clone().add(new THREE.Vector3(Math.cos(ang)*len,1.2+random()*1.5,Math.sin(ang)*len));putSegment(branches,branchN++,root,tip,.075+random()*.035);}
@@ -268,7 +290,7 @@
     while(midN<midCount&&midTries<midCount*15){
       midTries++;
       const x=(random()-.5)*238,z=(random()-.5)*238;
-      if(Math.abs(x-riverX(z))<9 || (Math.abs(x)<11&&z>0&&z<58))continue;
+      if(Math.abs(x-riverX(z))<9 || (Math.abs(x)<11&&z>0&&z<58) || random()>forestDensity(x,z))continue;
       const y=terrainHeight(x,z),h=2.8+random()*3.8,spread=1.5+random()*2.1;
       const leanX=(random()-.5)*.9,leanZ=(random()-.5)*.9;
       putSegment(midTrunks,midN,new THREE.Vector3(x,y,z),new THREE.Vector3(x+leanX,y+h,z+leanZ),.11+random()*.1);
@@ -293,7 +315,7 @@
     let shrubN=0;
     for(let i=0;i<shrubCount;i++){
       const x=(random()-.5)*236,z=(random()-.5)*236;
-      if(Math.abs(x-riverX(z))<7 || (Math.abs(x)<10&&z>0&&z<58))continue;
+      if(Math.abs(x-riverX(z))<7 || (Math.abs(x)<10&&z>0&&z<58) || random()>forestDensity(x,z))continue;
       const y=terrainHeight(x,z),radius=.65+random()*1.05;
       const hue=.265+random()*.12,light=.14+random()*.12;
       for(let k=0;k<3;k++){
