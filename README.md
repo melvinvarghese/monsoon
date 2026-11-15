@@ -17,7 +17,8 @@ The experience is a static site. It does not require a server, account, backend,
 - Instanced forest canopy, undergrowth and mossy rocks
 - A winding mountain stream with animated water
 - Drifting cloud banks and low valley mist
-- First-person desktop movement and mouse-look
+- First-person keyboard movement and mouse-look
+- On-screen mobile joystick and touch-look controls
 - Minimal introduction screen and controls panel
 - Lightweight synthesized ambient sound toggle
 - Adaptive scene density for smaller screens
@@ -32,7 +33,7 @@ The experience is a static site. It does not require a server, account, backend,
 | Release pointer | Esc |
 | Toggle ambient sound | M |
 
-On desktop, click **Enter the landscape** to capture the pointer. Press Escape to release it. Touch movement is planned for a later batch.
+On desktop, click **Enter the landscape** to capture the pointer. Press Escape to release it. On phones, use the on-screen joystick to walk and drag the right side of the screen to look around.
 
 ## Development
 
@@ -47,7 +48,7 @@ The first milestone is intentionally a static, dependency-light project. Open `i
 5. Dynamic weather and day/night cycle
 6. Additional connected locations
 7. Spatial environmental audio
-8. Mobile controls, optimisation and polish
+8. Further mobile optimisation and polish
 
 ## Credits and technology
 
