@@ -219,16 +219,16 @@
     const terrainMat=new THREE.MeshStandardMaterial({map:soilTexture,bumpMap:soilBump,bumpScale:.12,vertexColors:true,roughness:1,metalness:0});
     // Fine wet-earth variation is calculated in the shader, not built from extra geometry.
     terrainMat.onBeforeCompile=(shader)=>{
-      shader.vertexShader=shader.vertexShader.replace("#include <common>","#include <common>\\nvarying vec3 vTerrainWorld;");
-      shader.vertexShader=shader.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\\nvTerrainWorld=(modelMatrix*vec4(transformed,1.0)).xyz;");
-      shader.fragmentShader=shader.fragmentShader.replace("#include <common>","#include <common>\\nvarying vec3 vTerrainWorld;");
-      const detail="\\nfloat broadGrain=sin(vTerrainWorld.x*.19+sin(vTerrainWorld.z*.13))*sin(vTerrainWorld.z*.17-vTerrainWorld.x*.11);"+
-        "\\nfloat fineGrain=sin(vTerrainWorld.x*2.7+vTerrainWorld.z*1.9)*sin(vTerrainWorld.z*3.1-vTerrainWorld.x*2.2);"+
-        "\\nfloat cell=fract(sin(dot(floor(vTerrainWorld.xz*1.35),vec2(127.1,311.7)))*43758.5453);"+
-        "\\nfloat riverLine=sin(vTerrainWorld.z*.027)*7.0+sin(vTerrainWorld.z*.071)*1.7;"+
-        "\\nfloat damp=exp(-abs(vTerrainWorld.x-riverLine)*.105);"+
-        "\\ndiffuseColor.rgb*=.94+broadGrain*.045+fineGrain*.012+(cell-.5)*.035;"+
-        "\\ndiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.66,.80,.72),damp*.28);\\n";
+      shader.vertexShader=shader.vertexShader.replace("#include <common>","#include <common>\nvarying vec3 vTerrainWorld;");
+      shader.vertexShader=shader.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\nvTerrainWorld=(modelMatrix*vec4(transformed,1.0)).xyz;");
+      shader.fragmentShader=shader.fragmentShader.replace("#include <common>","#include <common>\nvarying vec3 vTerrainWorld;");
+      const detail="\nfloat broadGrain=sin(vTerrainWorld.x*.19+sin(vTerrainWorld.z*.13))*sin(vTerrainWorld.z*.17-vTerrainWorld.x*.11);"+
+        "\nfloat fineGrain=sin(vTerrainWorld.x*2.7+vTerrainWorld.z*1.9)*sin(vTerrainWorld.z*3.1-vTerrainWorld.x*2.2);"+
+        "\nfloat cell=fract(sin(dot(floor(vTerrainWorld.xz*1.35),vec2(127.1,311.7)))*43758.5453);"+
+        "\nfloat riverLine=sin(vTerrainWorld.z*.027)*7.0+sin(vTerrainWorld.z*.071)*1.7;"+
+        "\nfloat damp=exp(-abs(vTerrainWorld.x-riverLine)*.105);"+
+        "\ndiffuseColor.rgb*=.94+broadGrain*.045+fineGrain*.012+(cell-.5)*.035;"+
+        "\ndiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.66,.80,.72),damp*.28);\n";
       shader.fragmentShader=shader.fragmentShader.replace("#include <color_fragment>","#include <color_fragment>"+detail);
     };
     const terrain=new THREE.Mesh(terrainGeo,terrainMat);
