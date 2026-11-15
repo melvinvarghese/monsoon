@@ -250,8 +250,54 @@
       treeN++;
     }
     trunks.count=treeN;branches.count=branchN;canopy.count=leafN;trunks.castShadow=branches.castShadow=canopy.castShadow=!isMobile;trunks.receiveShadow=canopy.receiveShadow=true;scene.add(trunks,branches,canopy);
+
+    // A second, lower canopy layer breaks up the empty gaps between mature trees.
+    const midCount=isMobile?125:255;
+    const midTrunks=new THREE.InstancedMesh(trunkGeo,bark,midCount);
+    const midCrowns=new THREE.InstancedMesh(leafGeo,leafMat,midCount*5);
+    let midN=0,midLeafN=0,midTries=0;
+    while(midN<midCount&&midTries<midCount*15){
+      midTries++;
+      const x=(random()-.5)*238,z=(random()-.5)*238;
+      if(Math.abs(x-riverX(z))<9 || (Math.abs(x)<11&&z>0&&z<58))continue;
+      const y=terrainHeight(x,z),h=2.8+random()*3.8,spread=1.5+random()*2.1;
+      const leanX=(random()-.5)*.9,leanZ=(random()-.5)*.9;
+      putSegment(midTrunks,midN,new THREE.Vector3(x,y,z),new THREE.Vector3(x+leanX,y+h,z+leanZ),.11+random()*.1);
+      const hue=.275+random()*.095,light=.16+random()*.105;
+      for(let k=0;k<5;k++){
+        const a=random()*Math.PI*2,rad=spread*(.2+random()*.85);
+        dummy.position.set(x+Math.cos(a)*rad+leanX*.6,y+h*(.68+random()*.35),z+Math.sin(a)*rad+leanZ*.6);
+        dummy.rotation.set((random()-.5)*.65,random()*Math.PI*2,(random()-.5)*.65);
+        dummy.scale.set(.9+random()*1.35,.65+random()*.9,.9+random()*1.3);
+        dummy.updateMatrix();midCrowns.setMatrixAt(midLeafN,dummy.matrix);
+        midCrowns.setColorAt(midLeafN,new THREE.Color().setHSL(hue,.38,light+random()*.055));midLeafN++;
+      }
+      midN++;
+    }
+    midTrunks.count=midN;midCrowns.count=midLeafN;
+    midTrunks.castShadow=midCrowns.castShadow=!isMobile;scene.add(midTrunks,midCrowns);
+
+    // Dense shrub islands create a transition from ground ferns to the tree canopy.
+    const shrubGeo=new THREE.IcosahedronGeometry(1,1);
+    const shrubCount=isMobile?330:690;
+    const shrubs=new THREE.InstancedMesh(shrubGeo,leafMat,shrubCount*3);
+    for(let i=0;i<shrubCount;i++){
+      const x=(random()-.5)*236,z=(random()-.5)*236;
+      if(Math.abs(x-riverX(z))<7 || (Math.abs(x)<10&&z>0&&z<58))continue;
+      const y=terrainHeight(x,z),radius=.65+random()*1.05;
+      const hue=.265+random()*.12,light=.14+random()*.12;
+      for(let k=0;k<3;k++){
+        const a=k*Math.PI*2/3+random()*.6,spread=radius*(.35+random()*.45);
+        dummy.position.set(x+Math.cos(a)*spread,y+radius*(.55+random()*.22),z+Math.sin(a)*spread);
+        dummy.rotation.set(random()*.35,random()*Math.PI*2,random()*.35);
+        dummy.scale.set(radius*(.8+random()*.6),radius*(.65+random()*.55),radius*(.8+random()*.6));
+        dummy.updateMatrix();shrubs.setMatrixAt(i*3+k,dummy.matrix);
+        shrubs.setColorAt(i*3+k,new THREE.Color().setHSL(hue,.4,light+random()*.05));
+      }
+    }
+    shrubs.castShadow=!isMobile;scene.add(shrubs);
     // Broadleaf fern fans built from curved, individually tapered leaflets.
-    setProgress(55,"Filling the forest understory");
+    setProgress(55,"Layering the forest understory");
     function createFernFan(){
       const v=[],idx=[];
       for(let leaf=0;leaf<11;leaf++){const angle=leaf/11*Math.PI*2,len=.85+Math.sin(leaf*5.7)*.25,start=v.length/3,steps=8;
