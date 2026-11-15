@@ -6,9 +6,6 @@
   <meta name="theme-color" content="#101d19">
   <meta name="description" content="MONSOON — an immersive, interactive landscape inspired by Kerala's Western Ghats.">
   <title>MONSOON — The Living Western Ghats</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root{color-scheme:dark;--ink:#edf3ed;--muted:#aab9ae;--line:rgba(230,241,231,.18);--glass:rgba(12,25,21,.58);--accent:#c5d8b8}
     *{box-sizing:border-box}
@@ -27,7 +24,7 @@
     .intro.hidden{opacity:0;visibility:hidden;pointer-events:none}
     .intro-card{width:min(640px,100%);text-align:center;padding:48px 34px 42px;animation:rise 1.2s both}
     .eyebrow{font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#c9d9c9;margin-bottom:24px}
-    h1{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-size:clamp(58px,10vw,104px);letter-spacing:.035em;line-height:.95;margin:0 0 18px;text-shadow:0 5px 40px rgba(0,0,0,.25)}
+    h1{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-size:clamp(40px,11vw,104px);letter-spacing:.015em;line-height:.95;margin:0 0 18px;text-shadow:0 5px 40px rgba(0,0,0,.25)}
     .intro-line{width:44px;height:1px;background:rgba(229,240,229,.65);margin:25px auto}
     .intro-copy{font-family:"Playfair Display",Georgia,serif;font-size:clamp(16px,2.3vw,21px);line-height:1.6;color:#e0e9e0;margin:0 auto;max-width:430px}
     .enter{margin-top:36px;border:1px solid rgba(236,245,236,.65);background:rgba(17,36,29,.38);color:#f1f6f0;padding:15px 25px;border-radius:2px;font:600 10px "DM Sans",sans-serif;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;transition:background .25s,border-color .25s,transform .25s;backdrop-filter:blur(8px)}
@@ -39,21 +36,21 @@
     .crosshair{width:4px;height:4px;border:1px solid rgba(240,247,239,.8);border-radius:50%;box-shadow:0 0 8px rgba(255,255,255,.4)}
     .hud-text{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(237,245,235,.8)}
     .controls{position:fixed;z-index:3;right:28px;bottom:24px;display:flex;gap:8px;opacity:0;transition:opacity .8s}
-    .controls.visible{opacity:1}
+    .controls:not(.visible){visibility:hidden}.controls.visible{opacity:1;z-index:5}
     .icon-btn{width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:var(--glass);backdrop-filter:blur(12px);color:#edf4ec;display:grid;place-items:center;cursor:pointer}
     .icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5}
     .help{position:fixed;z-index:5;right:28px;bottom:74px;width:240px;padding:17px 18px;border:1px solid var(--line);background:rgba(9,20,16,.82);backdrop-filter:blur(18px);font-size:11px;color:#dce7dc;opacity:0;visibility:hidden;transform:translateY(8px);transition:.25s}
     .help.open{opacity:1;visibility:visible;transform:none}
     .help-title{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#aebfae;margin-bottom:13px}
     .key-row{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid rgba(230,241,231,.08)}
-    .key{color:#9eafa1}
+    .key{color:#9eafa1}.key-row[hidden]{display:none}
     .toast{position:fixed;z-index:6;left:50%;bottom:80px;transform:translate(-50%,10px);padding:9px 14px;border:1px solid var(--line);background:rgba(9,20,16,.8);font-size:10px;letter-spacing:.08em;color:#e4eee3;opacity:0;transition:.3s;pointer-events:none}
     .toast.show{opacity:1;transform:translate(-50%,0)}
     .touch-ui{position:fixed;z-index:4;inset:0;display:none;pointer-events:none}
     .touch-stick{position:absolute;left:24px;bottom:26px;width:126px;height:126px;border:1px solid rgba(235,245,235,.34);border-radius:50%;background:rgba(9,24,18,.22);backdrop-filter:blur(5px);pointer-events:auto;touch-action:none}
     .touch-knob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border:1px solid rgba(235,245,235,.58);border-radius:50%;background:rgba(205,225,205,.25);box-shadow:0 2px 16px #07110d66}
-    .touch-look{position:absolute;right:0;top:15%;bottom:0;width:55%;pointer-events:auto;touch-action:none}
-    .touch-hint{position:absolute;right:22px;bottom:34px;color:rgba(240,247,239,.68);font-size:9px;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 8px #07110d}
+    .touch-look{position:absolute;right:0;top:15%;bottom:68px;width:57%;pointer-events:auto;touch-action:none}
+    .touch-hint{position:absolute;right:17px;bottom:69px;color:rgba(240,247,239,.68);font-size:9px;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 8px #07110d}
     .touch-ui.active{display:block}
     @media(max-width:700px){.touch-stick{width:112px;height:112px;left:18px;bottom:22px}.touch-knob{width:44px;height:44px;margin:-22px}}
     .loader{position:fixed;z-index:10;inset:0;display:grid;place-items:center;background:#14241f;transition:opacity .8s,visibility .8s}
@@ -66,15 +63,18 @@
     @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
     @media(max-width:600px){.topbar{padding:20px}.brand-sub{font-size:8px}.weather{font-size:8px;padding:8px 10px}.intro-card{padding:30px 10px}.intro-copy{max-width:310px}.hud{left:18px;bottom:20px}.controls{right:16px;bottom:16px}.help{right:16px;bottom:65px}.intro-note{max-width:250px;margin-left:auto;margin-right:auto;line-height:1.6}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    body:has(.touch-ui.active) .hud{bottom:150px}
+    .icon-btn[aria-pressed="false"]{opacity:.72}
+    #metrics{position:fixed;z-index:7;top:73px;left:17px;padding:12px;background:#11231eee;color:#eff5e9;pointer-events:none;font:11px/1.5 monospace}
+    @media(max-height:480px){.intro-card{padding:12px}.eyebrow,.intro-line,.intro-note{display:none}.intro-copy{font-size:14px}.enter{margin-top:17px}}
+    .quality{margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    select{font:inherit;color:inherit;background:#1e3329;padding:5px;border:1px solid var(--line)}
   </style>
-  <script type="importmap">
-    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"}}
-  </script>
 </head>
 <body>
   <div id="world" aria-label="Interactive 3D landscape inspired by Kerala's Western Ghats"></div>
   <div class="vignette"></div>
-  <div class="loader" id="loader"><div class="loader-inner"><div class="loader-mark">MONSOON</div><div class="loader-track"><div class="loader-fill" id="loaderFill"></div></div><div class="loader-label" id="loaderLabel">Preparing the valley</div></div></div>
+  <div class="loader" id="loader"><div class="loader-inner"><div class="loader-mark">MONSOON</div><div class="loader-track"><div class="loader-fill" id="loaderFill"></div></div><div class="loader-label" id="loaderLabel" role="status">Preparing the valley</div><button class="enter" id="retry" hidden>Reload</button></div></div>
   <header class="topbar">
     <div class="brand"><div class="brand-name">MONSOON</div><div class="brand-sub">The living Western Ghats</div></div>
     <div class="weather"><span class="weather-dot"></span><span id="weatherLabel">After the rain · 22°C</span></div>
@@ -85,462 +85,31 @@
       <h1>MONSOON</h1>
       <div class="intro-line"></div>
       <p class="intro-copy">Somewhere in the mountains, the rain has just passed. The forest is breathing again. Follow the old footpath into the valley.</p>
-      <button class="enter" id="enterButton">Enter the landscape <span aria-hidden="true">↗</span></button>
+      <button class="enter" id="enterButton" disabled>Enter the landscape <span aria-hidden="true">↗</span></button>
       <div class="intro-note">Wander with keyboard and mouse, or use touch controls on your phone.</div>
     </div>
   </section>
   <div class="hud" id="hud"><span class="crosshair"></span><span class="hud-text">Follow the valley, at your own pace</span></div>
   <div class="controls" id="controls">
-    <button class="icon-btn" id="soundButton" aria-label="Toggle sound" title="Sound"><svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4H4z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></button>
-    <button class="icon-btn" id="helpButton" aria-label="Show controls" title="Controls"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.1 1.7c-1.1 1-1.8 1.3-1.8 3M12 17h.01"/></svg></button>
+    <button class="icon-btn" id="soundButton" aria-pressed="false" aria-label="Toggle sound" title="Sound"><svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4H4z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></button>
+    <button class="icon-btn" id="helpButton" aria-expanded="false" aria-controls="helpPanel" aria-label="Show controls" title="Controls"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.1 1.7c-1.1 1-1.8 1.3-1.8 3M12 17h.01"/></svg></button>
   </div>
-  <aside class="help" id="helpPanel"><div class="help-title">How to wander</div><div class="key-row"><span>Move</span><span class="key">W A S D</span></div><div class="key-row"><span>Look around</span><span class="key">Mouse</span></div><div class="key-row"><span>Walk faster</span><span class="key">Shift</span></div><div class="key-row"><span>Release pointer</span><span class="key">Esc</span></div><div class="key-row"><span>Sound</span><span class="key">M</span></div></aside>
+  <aside class="help" id="helpPanel"><div class="help-title">How to wander</div><div class="key-row"><span>Move</span><span class="key">W A S D</span></div><div class="key-row"><span>Look around</span><span class="key">Mouse</span></div><div class="key-row"><span>Walk faster</span><span class="key">Shift</span></div><div class="key-row"><span>Release pointer</span><span class="key">Esc</span></div><div class="key-row"><span>Sound</span><span class="key">M</span></div><label class="quality">Graphics <select id="quality"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label></aside>
   <div class="touch-ui" id="touchUI"><div class="touch-look" id="touchLook" aria-label="Drag to look around"></div><div class="touch-stick" id="touchStick" aria-label="Virtual movement joystick"><div class="touch-knob" id="touchKnob"></div></div><div class="touch-hint">Drag to look · Joystick to walk</div></div>
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status"></div><pre id="metrics" hidden></pre>
 
+  <noscript><style>.loader{display:none}</style><p role="alert" style="position:fixed;z-index:10;bottom:1rem;padding:1rem">Enable JavaScript to explore MONSOON.</p></noscript>
   <script type="module">
-    import * as THREE from "three";
-
-    const mount = document.getElementById("world");
-    const loader = document.getElementById("loader");
-    const loaderFill = document.getElementById("loaderFill");
-    const loaderLabel = document.getElementById("loaderLabel");
-    const intro = document.getElementById("intro");
-    const hud = document.getElementById("hud");
-    const controlsUI = document.getElementById("controls");
-    const helpPanel = document.getElementById("helpPanel");
-    const toast = document.getElementById("toast");
-    const touchUI = document.getElementById("touchUI");
-    const touchStick = document.getElementById("touchStick");
-    const touchKnob = document.getElementById("touchKnob");
-    const touchLook = document.getElementById("touchLook");
-
-    const isMobile = matchMedia("(pointer: coarse)").matches || innerWidth < 700;
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x8fa69e);
-    const skyGeo=new THREE.SphereGeometry(470,32,20);
-    const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,
-      vertexShader:"varying float vHeight;void main(){vHeight=normalize(position).y;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
-      fragmentShader:"varying float vHeight;void main(){float h=clamp(vHeight*.5+.5,0.0,1.0);vec3 horizon=vec3(0.63,0.73,0.69);vec3 zenith=vec3(0.20,0.34,0.32);vec3 col=mix(horizon,zenith,pow(h,.72));float glow=pow(max(0.0,1.0-abs(h-.58)*5.0),3.0);col+=vec3(.12,.13,.10)*glow;gl_FragColor=vec4(col,1.0);}"
-    });
-    scene.add(new THREE.Mesh(skyGeo,skyMat));
-    scene.fog = new THREE.FogExp2(0x91a69c, 0.0078);
-    const camera = new THREE.PerspectiveCamera(68, innerWidth / innerHeight, 0.1, 650);
-    camera.position.set(0, 4.2, 18);
-    const renderer = new THREE.WebGLRenderer({antialias: !isMobile, alpha:false, powerPreference:"high-performance"});
-    renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1.0 : 1.4));
-    renderer.setSize(innerWidth, innerHeight);
-    renderer.shadowMap.enabled = !isMobile;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.16;
-    mount.appendChild(renderer.domElement);
-
-    const clock = new THREE.Clock();
-    const keys = {};
-    let started = false, soundOn = false, audioContext = null, masterGain = null;
-    let yaw = 0, pitch = -0.06, pointerLocked = false;
-    const touchMove = {x:0,y:0};
-    let stickPointer = null, lookPointer = null, lastLookX = 0, lastLookY = 0;
-    let toastTimer = null;
-    const clamp = THREE.MathUtils.clamp;
-    const lerp = THREE.MathUtils.lerp;
-
-    function seeded(seed){let t=seed>>>0;return ()=>{t+=0x6D2B79F5;let x=t;x=Math.imul(x^x>>>15,x|1);x^=x+Math.imul(x^x>>>7,x|61);return ((x^x>>>14)>>>0)/4294967296;};}
-    const random = seeded(82417);
-    function smoothNoise(x,z){
-      const ix=Math.floor(x), iz=Math.floor(z), fx=x-ix, fz=z-iz;
-      const h=(a,b)=>{let n=Math.sin(a*127.1+b*311.7+19.19)*43758.5453;return n-Math.floor(n);};
-      const u=fx*fx*(3-2*fx),v=fz*fz*(3-2*fz);
-      return lerp(lerp(h(ix,iz),h(ix+1,iz),u),lerp(h(ix,iz+1),h(ix+1,iz+1),u),v)*2-1;
-    }
-    function fbm(x,z){let n=0,a=.55,f=.045;for(let i=0;i<4;i++){n+=smoothNoise(x*f,z*f)*a;a*=.5;f*=2.03;}return n;}
-    function riverX(z){return Math.sin(z*.027)*7+Math.sin(z*.071)*1.7;}
-    // Broad forest pockets frame the valley instead of distributing trees uniformly.
-    function forestDensity(x,z){
-      const pockets=.54+.20*Math.sin(x*.031+z*.018)*Math.cos(z*.026-x*.014)+.14*Math.sin(x*.012-z*.017);
-      const riverOpening=clamp((Math.abs(x-riverX(z))-9)/13,0,1);
-      const pathX=riverX(z)+5.9+Math.sin(z*.052)*.55;
-      const pathOpening=clamp((Math.abs(x-pathX)-2.5)/8,0,1);
-      return clamp(pockets*riverOpening*pathOpening,.08,.9);
-    }
-    function terrainHeight(x,z){
-      const center=riverX(z);
-      const valley=(1-Math.exp(-Math.pow((x-center)/25,2)))*7.5;
-      const folds=fbm(x+140,z-70)*10.5;
-      const longRidges=Math.sin(x*.019+z*.012)*3.2+Math.cos(z*.031-x*.009)*2.4;
-      const knolls=Math.sin(x*.085+z*.043)*.8+Math.cos(z*.11-x*.07)*.55;
-      const shoulders=Math.max(0,Math.abs(x-center)-17)*.075;
-      return 2.1+valley+folds+longRidges+knolls+shoulders;
-    }
-    function setProgress(n,label){loaderFill.style.width=n+"%";if(label)loaderLabel.textContent=label;}
-
-    const hemi = new THREE.HemisphereLight(0xdce9e1,0x34483a,1.35);scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffe5c0,2.65);sun.position.set(-65,95,35);sun.castShadow=!isMobile;sun.shadow.mapSize.set(768,768);sun.shadow.camera.left=-85;sun.shadow.camera.right=85;sun.shadow.camera.top=85;sun.shadow.camera.bottom=-85;sun.shadow.bias=-.00025;scene.add(sun);
-    const fill = new THREE.DirectionalLight(0xa9c8c0,.55);fill.position.set(70,35,-80);scene.add(fill);
-
-    // Sculpt the broad valley from a deterministic height field.
-    setProgress(12,"Sculpting the valley");
-    const terrainSize=300, terrainSegments=isMobile?112:176;
-    const terrainGeo=new THREE.PlaneGeometry(terrainSize,terrainSize,terrainSegments,terrainSegments);
-    terrainGeo.rotateX(-Math.PI/2);
-    const pos=terrainGeo.attributes.position;
-    const colors=[];
-    const cLow=new THREE.Color(0x293c2e),cMid=new THREE.Color(0x526c43),cHigh=new THREE.Color(0x71805a),cRock=new THREE.Color(0x555d50);
-    for(let i=0;i<pos.count;i++){
-      const x=pos.getX(i),z=pos.getZ(i),h=terrainHeight(x,z);
-      pos.setY(i,h);
-      const moisture=clamp(.5+fbm(x+90,z-30)*.22,0,1);
-      const slope=Math.abs(fbm(x*.7,z*.7));
-      let col=cLow.clone().lerp(cMid,clamp((h+3)/15,0,1));
-      col.lerp(cHigh,clamp((h-8)/18,0,.55));
-      col.lerp(cRock,clamp((slope-.48)*.32,0,.25));
-      col.multiplyScalar(.84+moisture*.2);
-      colors.push(col.r,col.g,col.b);
-    }
-    terrainGeo.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));terrainGeo.computeVertexNormals();
-    // Procedural soil detail: broad damp-earth mottling with fine mineral and leaf-litter flecks.
-    const soilCanvas=document.createElement("canvas");soilCanvas.width=soilCanvas.height=256;
-    const soilCtx=soilCanvas.getContext("2d");
-    soilCtx.fillStyle="#777b5e";soilCtx.fillRect(0,0,256,256);
-    for(let i=0;i<700;i++){
-      const x=random()*256,y=random()*256,r=1+random()*12;
-      soilCtx.fillStyle=random()>.5?"rgba(30,49,31,"+(0.018+random()*.055)+")":"rgba(206,190,143,"+(0.012+random()*.045)+")";
-      soilCtx.beginPath();soilCtx.ellipse(x,y,r,r*(.3+random()*.7),random()*Math.PI,0,Math.PI*2);soilCtx.fill();
-    }
-    for(let i=0;i<2600;i++){
-      const x=random()*256,y=random()*256;
-      soilCtx.fillStyle=random()>.52?"rgba(24,37,24,.12)":"rgba(220,207,166,.10)";
-      soilCtx.fillRect(x,y,1+random()*2,1+random()*2);
-    }
-    const soilTexture=new THREE.CanvasTexture(soilCanvas);soilTexture.wrapS=soilTexture.wrapT=THREE.RepeatWrapping;soilTexture.repeat.set(14,14);soilTexture.colorSpace=THREE.SRGBColorSpace;soilTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
-    const soilBump=soilTexture.clone();soilBump.colorSpace=THREE.NoColorSpace;
-    const terrainMat=new THREE.MeshStandardMaterial({map:soilTexture,bumpMap:soilBump,bumpScale:.12,vertexColors:true,roughness:1,metalness:0});
-    // Fine wet-earth variation is calculated in the shader, not built from extra geometry.
-    terrainMat.onBeforeCompile=(shader)=>{
-      shader.vertexShader=shader.vertexShader.replace("#include <common>","#include <common>\nvarying vec3 vTerrainWorld;");
-      shader.vertexShader=shader.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\nvTerrainWorld=(modelMatrix*vec4(transformed,1.0)).xyz;");
-      shader.fragmentShader=shader.fragmentShader.replace("#include <common>","#include <common>\nvarying vec3 vTerrainWorld;");
-      const detail="\nfloat broadGrain=sin(vTerrainWorld.x*.19+sin(vTerrainWorld.z*.13))*sin(vTerrainWorld.z*.17-vTerrainWorld.x*.11);"+
-        "\nfloat fineGrain=sin(vTerrainWorld.x*2.7+vTerrainWorld.z*1.9)*sin(vTerrainWorld.z*3.1-vTerrainWorld.x*2.2);"+
-        "\nfloat cell=fract(sin(dot(floor(vTerrainWorld.xz*1.35),vec2(127.1,311.7)))*43758.5453);"+
-        "\nfloat riverLine=sin(vTerrainWorld.z*.027)*7.0+sin(vTerrainWorld.z*.071)*1.7;"+
-        "\nfloat damp=exp(-abs(vTerrainWorld.x-riverLine)*.105);"+
-        "\ndiffuseColor.rgb*=.94+broadGrain*.045+fineGrain*.012+(cell-.5)*.035;"+
-        "\ndiffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vec3(.66,.80,.72),damp*.28);\n";
-      shader.fragmentShader=shader.fragmentShader.replace("#include <color_fragment>","#include <color_fragment>"+detail);
+    import { start } from "./landscape.js";
+    const fail = (message) => {
+      document.getElementById("loaderLabel").textContent = message;
+      document.getElementById("retry").hidden = false;
+      document.getElementById("enterButton").disabled = true;
     };
-    const terrain=new THREE.Mesh(terrainGeo,terrainMat);
-    terrain.receiveShadow=true;scene.add(terrain);
-
-    // Sculpted mountain walls: overlapping ridge silhouettes with natural variation.
-    setProgress(25,"Raising the Western Ghats");
-    function buildRange(zBase,width,depth,height,seed,tint){
-      const r=seeded(seed),nx=isMobile?100:160,nz=20,vertices=[],indices=[],colors=[],peaks=[];
-      for(let p=0;p<15;p++)peaks.push({x:(r()-.5)*width*.96,w:9+r()*24,h:height*(.4+r()*.75)});
-      for(let iz=0;iz<=nz;iz++){const v=iz/nz,z=(v-.5)*depth;for(let ix=0;ix<=nx;ix++){
-        const x=(ix/nx-.5)*width;let ridge=0;for(const p of peaks)ridge=Math.max(ridge,p.h*Math.exp(-Math.pow((x-p.x)/p.w,2)));
-        const edge=Math.pow(Math.sin(Math.PI*v),.42),y=1.5+ridge*edge+fbm(x+seed,z+seed)*height*.055*edge;
-        vertices.push(x,y,z);const c=new THREE.Color(tint).multiplyScalar(clamp(.76+ridge/height*.25+fbm(x,z)*.025,.55,1.08));colors.push(c.r,c.g,c.b);
-        if(ix<nx&&iz<nz){const q=iz*(nx+1)+ix,k=q+nx+1;indices.push(q,k,q+1,k,k+1,q+1);}
-      }}
-      const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(vertices,3));g.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));g.setIndex(indices);g.computeVertexNormals();
-      const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,side:THREE.DoubleSide}));m.position.z=zBase;m.receiveShadow=true;scene.add(m);
-    }
-    buildRange(-151,390,76,49,301,0x536e5c);buildRange(-207,440,92,64,602,0x71877b);buildRange(-266,480,110,76,903,0x9aada1);
-
-    // A layered broadleaf canopy: tapered trunks, branching limbs and irregular leaf masses.
-    setProgress(40,"Growing the rainforest canopy");
-    const trunkGeo=new THREE.CylinderGeometry(.12,.38,1,10,4),branchGeo=new THREE.CylinderGeometry(.035,.15,1,7,2);
-    // Crown lobes are deliberately asymmetric rather than perfect spheres.
-    const leafGeo=new THREE.SphereGeometry(1,14,10);
-    const crownPos=leafGeo.attributes.position;
-    for(let i=0;i<crownPos.count;i++){
-      const x=crownPos.getX(i),y=crownPos.getY(i),z=crownPos.getZ(i);
-      const wobble=1+.075*Math.sin(x*8.1+z*5.3)*Math.cos(y*6.4-z*3.7)+.035*Math.sin(z*13+y*4);
-      crownPos.setXYZ(i,x*wobble,y*wobble,z*wobble);
-    }
-    leafGeo.computeVertexNormals();
-    const bark=new THREE.MeshStandardMaterial({color:0x49382b,roughness:1}),leafMat=new THREE.MeshStandardMaterial({color:0x31563a,roughness:1,vertexColors:true});
-    leafMat.onBeforeCompile=(shader)=>{
-      shader.uniforms.uWindTime={value:0};leafMat.userData.windUniform=shader.uniforms.uWindTime;
-      shader.vertexShader=shader.vertexShader.replace("#include <common>","#include <common>\nuniform float uWindTime;");
-      shader.vertexShader=shader.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\ntransformed.x += sin(uWindTime + position.y*2.1 + position.x*1.7)*0.055*position.y;\ntransformed.z += cos(uWindTime*.83 + position.x*2.0)*0.028*position.y;");
-    };
-    const treeCount=isMobile?92:190,trunks=new THREE.InstancedMesh(trunkGeo,bark,treeCount),branches=new THREE.InstancedMesh(branchGeo,bark,treeCount*10),canopy=new THREE.InstancedMesh(leafGeo,leafMat,treeCount*9);
-    const dummy=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),axis=new THREE.Vector3();
-    function putSegment(mesh,index,start,end,r){axis.subVectors(end,start);dummy.position.copy(start).add(end).multiplyScalar(.5);dummy.quaternion.setFromUnitVectors(up,axis.clone().normalize());dummy.scale.set(r,axis.length(),r);dummy.updateMatrix();mesh.setMatrixAt(index,dummy.matrix);}
-    let treeN=0,branchN=0,leafN=0,tries=0;
-    while(treeN<treeCount&&tries<treeCount*12){tries++;const x=(random()-.5)*244,z=(random()-.5)*244;if(Math.abs(x-riverX(z))<10||(Math.abs(x)<9&&z>0&&z<58)||random()>forestDensity(x,z))continue;
-      const y=terrainHeight(x,z),h=5.5+random()*5.8,spread=2.8+random()*2.6,lx=(random()-.5)*1.2,lz=(random()-.5)*1.2;
-      const base=new THREE.Vector3(x,y,z),top=new THREE.Vector3(x+lx,y+h,z+lz);putSegment(trunks,treeN,base,top,.22+random()*.13);
-      for(let k=0;k<3;k++){const t=.48+k*.13,root=new THREE.Vector3(x+lx*t,y+h*t,z+lz*t),ang=random()*Math.PI*2,len=spread*(.65+random()*.55),tip=root.clone().add(new THREE.Vector3(Math.cos(ang)*len,1.2+random()*1.5,Math.sin(ang)*len));putSegment(branches,branchN++,root,tip,.075+random()*.035);}
-      const hue=.285+random()*.075,light=.20+random()*.09;
-      for(let k=0;k<9;k++){const ang=random()*Math.PI*2,rad=spread*(.25+random()*.82);dummy.position.set(x+Math.cos(ang)*rad+lx*.8,y+h*(.67+random()*.38)+(random()-.5)*1.5,z+Math.sin(ang)*rad+lz*.8);dummy.rotation.set((random()-.5)*.55,random()*Math.PI*2,(random()-.5)*.55);dummy.scale.set(1.35+random()*1.9,.85+random()*1.25,1.25+random()*1.9);dummy.updateMatrix();canopy.setMatrixAt(leafN,dummy.matrix);canopy.setColorAt(leafN,new THREE.Color().setHSL(hue,.32,light+random()*.045));leafN++;}
-      treeN++;
-    }
-    trunks.count=treeN;branches.count=branchN;canopy.count=leafN;trunks.castShadow=branches.castShadow=canopy.castShadow=!isMobile;trunks.receiveShadow=canopy.receiveShadow=true;scene.add(trunks,branches,canopy);
-
-    // A second, lower canopy layer breaks up the empty gaps between mature trees.
-    const midCount=isMobile?48:100;
-    const midTrunks=new THREE.InstancedMesh(trunkGeo,bark,midCount);
-    const midCrowns=new THREE.InstancedMesh(leafGeo,leafMat,midCount*6);
-    let midN=0,midLeafN=0,midTries=0;
-    while(midN<midCount&&midTries<midCount*15){
-      midTries++;
-      const x=(random()-.5)*238,z=(random()-.5)*238;
-      if(Math.abs(x-riverX(z))<9 || (Math.abs(x)<11&&z>0&&z<58) || random()>forestDensity(x,z))continue;
-      const y=terrainHeight(x,z),h=2.8+random()*3.8,spread=1.5+random()*2.1;
-      const leanX=(random()-.5)*.9,leanZ=(random()-.5)*.9;
-      putSegment(midTrunks,midN,new THREE.Vector3(x,y,z),new THREE.Vector3(x+leanX,y+h,z+leanZ),.11+random()*.1);
-      const hue=.275+random()*.095,light=.16+random()*.105;
-      for(let k=0;k<5;k++){
-        const a=random()*Math.PI*2,rad=spread*(.2+random()*.85);
-        dummy.position.set(x+Math.cos(a)*rad+leanX*.6,y+h*(.68+random()*.35),z+Math.sin(a)*rad+leanZ*.6);
-        dummy.rotation.set((random()-.5)*.65,random()*Math.PI*2,(random()-.5)*.65);
-        dummy.scale.set(.75+random()*1.45,.55+random()*1.05,.8+random()*1.5);
-        dummy.updateMatrix();midCrowns.setMatrixAt(midLeafN,dummy.matrix);
-        midCrowns.setColorAt(midLeafN,new THREE.Color().setHSL(hue,.38,light+random()*.055));midLeafN++;
-      }
-      midN++;
-    }
-    midTrunks.count=midN;midCrowns.count=midLeafN;
-    midTrunks.castShadow=midCrowns.castShadow=!isMobile;scene.add(midTrunks,midCrowns);
-
-    // Dense shrub islands create a transition from ground ferns to the tree canopy.
-    const shrubGeo=new THREE.IcosahedronGeometry(1,1);
-    const shrubCount=isMobile?125:260;
-    const shrubs=new THREE.InstancedMesh(shrubGeo,leafMat,shrubCount*3);
-    let shrubN=0;
-    for(let i=0;i<shrubCount;i++){
-      const x=(random()-.5)*236,z=(random()-.5)*236;
-      if(Math.abs(x-riverX(z))<7 || (Math.abs(x)<10&&z>0&&z<58) || random()>forestDensity(x,z))continue;
-      const y=terrainHeight(x,z),radius=.65+random()*1.05;
-      const hue=.265+random()*.12,light=.14+random()*.12;
-      for(let k=0;k<3;k++){
-        const a=k*Math.PI*2/3+random()*.6,spread=radius*(.35+random()*.45);
-        dummy.position.set(x+Math.cos(a)*spread,y+radius*(.55+random()*.22),z+Math.sin(a)*spread);
-        dummy.rotation.set(random()*.35,random()*Math.PI*2,random()*.35);
-        dummy.scale.set(radius*(.8+random()*.6),radius*(.65+random()*.55),radius*(.8+random()*.6));
-        dummy.updateMatrix();shrubs.setMatrixAt(shrubN,dummy.matrix);
-        shrubs.setColorAt(shrubN,new THREE.Color().setHSL(hue,.4,light+random()*.05));shrubN++;
-      }
-    }
-    shrubs.count=shrubN;shrubs.castShadow=!isMobile;scene.add(shrubs);
-    // Broadleaf fern fans built from curved, individually tapered leaflets.
-    setProgress(55,"Layering the forest understory");
-    function createFernFan(){
-      const v=[],idx=[];
-      for(let leaf=0;leaf<11;leaf++){const angle=leaf/11*Math.PI*2,len=.85+Math.sin(leaf*5.7)*.25,start=v.length/3,steps=8;
-        for(let j=0;j<=steps;j++){const t=j/steps,w=Math.sin(Math.PI*t)*.13*(1-t*.35),cx=Math.cos(angle)*len*t,cz=Math.sin(angle)*len*t,cy=.06+Math.sin(t*Math.PI*.72)*.62;
-          v.push(cx-Math.sin(angle)*w,cy,cz+Math.cos(angle)*w,cx+Math.sin(angle)*w,cy,cz-Math.cos(angle)*w);
-          if(j<steps){const q=start+j*2;idx.push(q,q+1,q+2,q+1,q+3,q+2);}
-        }
-      }
-      const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(v,3));g.setIndex(idx);g.computeVertexNormals();return g;
-    }
-    const fernGeo=createFernFan(),fernMat=new THREE.MeshStandardMaterial({color:0x527749,roughness:1,side:THREE.DoubleSide});
-    const fernCount=isMobile?180:380,ferns=new THREE.InstancedMesh(fernGeo,fernMat,fernCount);
-    for(let i=0;i<fernCount;i++){let x=(random()-.5)*240,z=(random()-.5)*240;if(Math.abs(x-riverX(z))<6)x+=random()<.5?-8:8;
-      const y=terrainHeight(x,z),scale=.65+random()*1.25;dummy.position.set(x,y,z);dummy.rotation.set((random()-.5)*.2,random()*Math.PI*2,(random()-.5)*.2);dummy.scale.set(scale,scale,scale);dummy.updateMatrix();ferns.setMatrixAt(i,dummy.matrix);
-      ferns.setColorAt(i,new THREE.Color().setHSL(.27+random()*.08,.38,.24+random()*.13));
-    }
-    ferns.castShadow=!isMobile;scene.add(ferns);
-    // Moss-dark boulders, placed in loose natural groups.
-    const rockGeo=new THREE.DodecahedronGeometry(1,1);
-    const rockMat=new THREE.MeshStandardMaterial({color:0x59635a,roughness:1,flatShading:true});
-    const rocks=new THREE.InstancedMesh(rockGeo,rockMat,isMobile?65:145);
-    for(let i=0;i<rocks.count;i++){
-      const x=(random()-.5)*200,z=(random()-.5)*205,y=terrainHeight(x,z);
-      const s=.35+random()*1.45;
-      dummy.position.set(x,y+s*.35,z);dummy.rotation.set(random()*2,random()*Math.PI,random()*2);dummy.scale.set(s*1.25,s*.7,s);dummy.updateMatrix();rocks.setMatrixAt(i,dummy.matrix);
-      rocks.setColorAt(i,new THREE.Color().setHSL(.32,.08,.28+random()*.13));
-    }
-    rocks.castShadow=!isMobile;rocks.receiveShadow=true;scene.add(rocks);
-
-    // A narrow, uneven footpath follows the stream toward the waterfall.
-    // It is deliberately subtle: a trace of compacted earth through the wet forest.
-    const trailVertices=[],trailUvs=[],trailIndices=[];
-    const trailSteps=220;
-    for(let i=0;i<=trailSteps;i++){
-      const t=i/trailSteps,z=88-t*180;
-      const center=riverX(z)+5.9+Math.sin(z*.052)*.55;
-      const width=1.25+Math.sin(t*Math.PI*13)*.12;
-      for(let side=0;side<2;side++){
-        const x=center+(side===0?-width:width);
-        trailVertices.push(x,terrainHeight(x,z)+.19,z);
-        trailUvs.push(side,t*34);
-      }
-      if(i<trailSteps){const q=i*2;trailIndices.push(q,q+1,q+2,q+1,q+3,q+2);}
-    }
-    const trailGeo=new THREE.BufferGeometry();
-    trailGeo.setAttribute("position",new THREE.Float32BufferAttribute(trailVertices,3));
-    trailGeo.setAttribute("uv",new THREE.Float32BufferAttribute(trailUvs,2));
-    trailGeo.setIndex(trailIndices);trailGeo.computeVertexNormals();
-    const trailTexture=soilTexture.clone();trailTexture.repeat.set(1.4,34);trailTexture.needsUpdate=true;
-    const trail=new THREE.Mesh(trailGeo,new THREE.MeshStandardMaterial({map:trailTexture,color:0x8b795e,roughness:1,transparent:true,opacity:.92,polygonOffset:true,polygonOffsetFactor:-1}));
-    trail.receiveShadow=true;scene.add(trail);
-
-    // A shallow winding stream: a ribbon mesh with gently animated water.
-    setProgress(68,"Drawing the mountain stream");
-    const streamPoints=[];
-    for(let z=105;z>=-112;z-=8){const x=riverX(z);streamPoints.push(new THREE.Vector3(x,terrainHeight(x,z)+.22,z));}
-    const streamCurve=new THREE.CatmullRomCurve3(streamPoints);
-    const waterGeo=new THREE.BufferGeometry(),waterVerts=[],waterUvs=[],waterIndices=[];
-    const divisions=280;
-    for(let i=0;i<=divisions;i++){
-      const t=i/divisions,p=streamCurve.getPoint(t),tan=streamCurve.getTangent(t),side=new THREE.Vector3(-tan.z,0,tan.x).normalize();
-      for(let j=0;j<2;j++){
-        const w=j===0?-2.3:2.3;
-        waterVerts.push(p.x+side.x*w,p.y+(j===0?.01:0),p.z+side.z*w);waterUvs.push(j,t*22);
-      }
-      if(i<divisions){const a=i*2;waterIndices.push(a,a+1,a+2,a+1,a+3,a+2);}
-    }
-    waterGeo.setAttribute("position",new THREE.Float32BufferAttribute(waterVerts,3));waterGeo.setAttribute("uv",new THREE.Float32BufferAttribute(waterUvs,2));waterGeo.setIndex(waterIndices);waterGeo.computeVertexNormals();
-    const waterMat=new THREE.ShaderMaterial({
-      transparent:true,uniforms:{uTime:{value:0},uColor:{value:new THREE.Color(0x477c79)}},
-      vertexShader:`varying vec2 vUv;varying vec3 vWorld;uniform float uTime;void main(){vUv=uv;vec3 p=position;p.y+=sin(p.z*.42+uTime*1.4)*.035+sin(p.x*.8-uTime)*.018;vec4 world=modelMatrix*vec4(p,1.);vWorld=world.xyz;gl_Position=projectionMatrix*viewMatrix*world;}`,
-      fragmentShader:`varying vec2 vUv;varying vec3 vWorld;uniform float uTime;uniform vec3 uColor;void main(){
-        float waveA=sin(vUv.y*31.-uTime*1.7+sin(vUv.x*8.)*.7);
-        float waveB=sin(vUv.y*73.+uTime*2.2+vUv.x*13.);
-        float ripple=waveA*.035+waveB*.012;
-        float glint=smoothstep(.91,1.,sin(vUv.y*67.+vUv.x*11.+uTime*2.1));
-        float caustic=pow(max(0.,sin(vWorld.x*1.7+uTime*.7)*sin(vWorld.z*1.25-uTime*.55)),5.);
-        vec3 viewDir=normalize(cameraPosition-vWorld);
-        float fresnel=pow(1.-max(dot(viewDir,vec3(0.,1.,0.)),0.),3.);
-        vec3 col=uColor+vec3(.12,.17,.13)*ripple+vec3(.22,.24,.18)*glint;
-        col=mix(col,vec3(.68,.81,.75),fresnel*.34+caustic*.10);
-        gl_FragColor=vec4(col,.78+fresnel*.12);
-      }`
-    });
-    const water=new THREE.Mesh(waterGeo,waterMat);water.renderOrder=2;scene.add(water);
-
-    // A distant two-step cascade gives the valley a visible destination.
-    const falls=[];
-    const fallMat=new THREE.ShaderMaterial({
-      transparent:true,depthWrite:false,side:THREE.DoubleSide,
-      uniforms:{uTime:{value:0}},
-      vertexShader:"varying vec2 vUv;uniform float uTime;void main(){vUv=uv;vec3 p=position;p.x+=sin(uv.y*5.0+uTime*1.4)*.035;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}",
-      fragmentShader:"varying vec2 vUv;uniform float uTime;void main(){float streak=pow(max(0.0,sin(vUv.x*72.0+sin(vUv.y*19.0+uTime)*2.0)),8.0);float flow=.5+.5*sin(vUv.y*48.0-uTime*4.5+sin(vUv.x*13.0)*1.2);float foam=(1.0-smoothstep(0.0,.22,vUv.y));vec3 col=mix(vec3(.16,.34,.34),vec3(.66,.78,.73),flow*.42+streak*.5);col=mix(col,vec3(.82,.88,.82),foam*.75);float alpha=.48+flow*.22+foam*.22;gl_FragColor=vec4(col,alpha);}"
-    });
-    const fallZ=-96,fallX=riverX(fallZ),fallBase=terrainHeight(fallX,fallZ)+.35;
-    const fallOne=new THREE.Mesh(new THREE.PlaneGeometry(7.5,10,12,18),fallMat);fallOne.position.set(fallX,fallBase+5,fallZ);scene.add(fallOne);falls.push(fallOne);
-    const fallTwo=new THREE.Mesh(new THREE.PlaneGeometry(4.2,4.8,10,12),fallMat);fallTwo.position.set(fallX+1.1,fallBase+2.4,fallZ+1.2);fallTwo.rotation.y=.12;scene.add(fallTwo);falls.push(fallTwo);
-    const fallPool=new THREE.Mesh(new THREE.CircleGeometry(5.5,40),new THREE.MeshStandardMaterial({color:0x416f69,roughness:.22,metalness:.08,transparent:true,opacity:.82}));
-    fallPool.rotation.x=-Math.PI/2;fallPool.position.set(fallX,fallBase+.08,fallZ+3.4);scene.add(fallPool);
-    const fallRockGeo=new THREE.DodecahedronGeometry(1,1),fallRockMat=new THREE.MeshStandardMaterial({color:0x4b5b4e,roughness:1});
-    for(let n=0;n<8;n++){const rock=new THREE.Mesh(fallRockGeo,fallRockMat);const side=n%2?1:-1;rock.position.set(fallX+side*(4.5+Math.random()*2),fallBase+Math.random()*2,fallZ+(Math.random()-.5)*7);rock.scale.set(1.3+Math.random()*1.8,.8+Math.random()*1.5,1+Math.random()*1.5);rock.rotation.set(Math.random(),Math.random(),Math.random());rock.castShadow=!isMobile;scene.add(rock);}
-
-    // Distant cloud banks and drifting valley mist.
-    setProgress(80,"Gathering the monsoon mist");
-    const cloudMat=new THREE.MeshBasicMaterial({color:0xe1e9e2,transparent:true,opacity:.13,depthWrite:false});
-    // All cloud puffs share one geometry and one instanced draw call.
-    const cloudGeo=new THREE.SphereGeometry(1,8,6);
-    const cloudPuffCount=104,cloudPuffs=new THREE.InstancedMesh(cloudGeo,cloudMat,cloudPuffCount);
-    const cloudRecords=[],cloudDummy=new THREE.Object3D();
-    let cloudIndex=0;
-    for(let i=0;i<17;i++){
-      const cx=(random()-.5)*230,cy=30+random()*22,cz=-115+random()*120;
-      const speed=.35+random()*.5,count=4+Math.floor(random()*3);
-      for(let j=0;j<count&&cloudIndex<cloudPuffCount;j++){
-        const rec={x:cx+(random()-.5)*17,y:cy+random()*2,z:cz+(random()-.5)*8,
-          sx:5+random()*7,sy:1.2+random()*2.1,sz:3+random()*5,speed};
-        cloudRecords.push(rec);cloudDummy.position.set(rec.x,rec.y,rec.z);
-        cloudDummy.scale.set(rec.sx,rec.sy,rec.sz);cloudDummy.updateMatrix();
-        cloudPuffs.setMatrixAt(cloudIndex++,cloudDummy.matrix);
-      }
-    }
-    cloudPuffs.count=cloudIndex;scene.add(cloudPuffs);
-    const mistCount=isMobile?110:260, mistPositions=new Float32Array(mistCount*3),mistSpeeds=new Float32Array(mistCount);
-    for(let i=0;i<mistCount;i++){mistPositions[i*3]=(random()-.5)*210;mistPositions[i*3+1]=2+random()*12;mistPositions[i*3+2]=(random()-.5)*210;mistSpeeds[i]=.15+random()*.35;}
-    const mistGeo=new THREE.BufferGeometry();mistGeo.setAttribute("position",new THREE.BufferAttribute(mistPositions,3));
-    const mist=new THREE.Points(mistGeo,new THREE.PointsMaterial({color:0xe2ebe5,size:.24,transparent:true,opacity:.25,depthWrite:false,sizeAttenuation:true}));scene.add(mist);
-
-    // A soft sun behind the high cloud layer.
-    const sunDisc=new THREE.Mesh(new THREE.SphereGeometry(3.5,20,16),new THREE.MeshBasicMaterial({color:0xffe5bf,transparent:true,opacity:.45}));sunDisc.position.set(-62,62,-120);scene.add(sunDisc);
-
-    setProgress(92,"Waking the landscape");
-    camera.lookAt(0,3,-18);
-    yaw=0;pitch=-.06;
-    setProgress(100,"The valley is ready");
-    setTimeout(()=>loader.classList.add("done"),350);
-
-    function showToast(message){toast.textContent=message;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove("show"),2100);}
-    function beginAudio(){
-      if(audioContext){if(audioContext.state==="suspended")audioContext.resume();masterGain.gain.setTargetAtTime(.16,audioContext.currentTime,.18);return;}
-      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-      audioContext=new AC();masterGain=audioContext.createGain();masterGain.gain.value=.16;masterGain.connect(audioContext.destination);
-      const buffer=audioContext.createBuffer(1,audioContext.sampleRate*3,audioContext.sampleRate),data=buffer.getChannelData(0);
-      for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.22;
-      const noise=audioContext.createBufferSource();noise.buffer=buffer;noise.loop=true;
-      const low=audioContext.createBiquadFilter();low.type="lowpass";low.frequency.value=380;
-      const windGain=audioContext.createGain();windGain.gain.value=.24;noise.connect(low);low.connect(windGain);windGain.connect(masterGain);noise.start();
-      const osc=audioContext.createOscillator(),oscGain=audioContext.createGain();osc.type="sine";osc.frequency.value=68;oscGain.gain.value=.035;osc.connect(oscGain);oscGain.connect(masterGain);osc.start();
-      // Gentle distant bird-like notes synthesized with soft sine tones.
-      const bird=()=>{if(!soundOn||!audioContext)return;const o=audioContext.createOscillator(),g=audioContext.createGain();o.type="sine";o.frequency.setValueAtTime(1700+Math.random()*700,audioContext.currentTime);o.frequency.exponentialRampToValueAtTime(1100,audioContext.currentTime+.22);g.gain.setValueAtTime(.0001,audioContext.currentTime);g.gain.exponentialRampToValueAtTime(.025,audioContext.currentTime+.035);g.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+.28);o.connect(g);g.connect(masterGain);o.start();o.stop(audioContext.currentTime+.3);setTimeout(bird,4500+Math.random()*8500);};bird();
-    }
-    function toggleSound(){soundOn=!soundOn;if(soundOn){beginAudio();showToast("Ambient sound on");}else if(masterGain){masterGain.gain.setTargetAtTime(0,audioContext.currentTime,.15);showToast("Ambient sound off");}document.getElementById("soundButton").style.opacity=soundOn?"1":".65";}
-    document.getElementById("soundButton").addEventListener("click",toggleSound);
-    document.getElementById("helpButton").addEventListener("click",()=>helpPanel.classList.toggle("open"));
-    document.getElementById("enterButton").addEventListener("click",()=>{
-      started=true;intro.classList.add("hidden");hud.classList.add("visible");controlsUI.classList.add("visible");
-      if(!isMobile){renderer.domElement.requestPointerLock?.();}else{touchUI.classList.add("active");showToast("Use the joystick to walk and drag to look");}
-      if(soundOn)beginAudio();
-    });
-    document.addEventListener("pointerlockchange",()=>{pointerLocked=document.pointerLockElement===renderer.domElement;if(started&&!pointerLocked&&!isMobile){intro.classList.remove("hidden");}});
-    touchStick.addEventListener("pointerdown",e=>{if(!started)return;stickPointer=e.pointerId;touchStick.setPointerCapture(e.pointerId);updateStick(e);e.preventDefault();});
-    function updateStick(e){const r=touchStick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.34,len=Math.hypot(dx,dy)||1,k=Math.min(1,max/len);touchMove.x=dx/max*k;touchMove.y=dy/max*k;touchKnob.style.transform="translate("+dx*k+"px,"+dy*k+"px)";}
-    touchStick.addEventListener("pointermove",e=>{if(e.pointerId===stickPointer)updateStick(e);});
-    function releaseStick(e){if(e.pointerId!==stickPointer)return;stickPointer=null;touchMove.x=touchMove.y=0;touchKnob.style.transform="translate(0,0)";}
-    touchStick.addEventListener("pointerup",releaseStick);touchStick.addEventListener("pointercancel",releaseStick);
-    touchLook.addEventListener("pointerdown",e=>{if(!started)return;lookPointer=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;touchLook.setPointerCapture(e.pointerId);e.preventDefault();});
-    touchLook.addEventListener("pointermove",e=>{if(e.pointerId!==lookPointer)return;const dx=e.clientX-lastLookX,dy=e.clientY-lastLookY;lastLookX=e.clientX;lastLookY=e.clientY;yaw-=dx*.004;pitch=clamp(pitch-dy*.003,-1.2,1.05);});
-    function releaseLook(e){if(e.pointerId===lookPointer)lookPointer=null;}
-    touchLook.addEventListener("pointerup",releaseLook);touchLook.addEventListener("pointercancel",releaseLook);
-    document.addEventListener("mousemove",e=>{if(!pointerLocked)return;yaw-=e.movementX*.0022;pitch-=e.movementY*.0018;pitch=clamp(pitch,-1.25,1.15);});
-    document.addEventListener("keydown",e=>{keys[e.code]=true;if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();if(e.code==="KeyM")toggleSound();if(e.code==="Escape")helpPanel.classList.remove("open");});
-    document.addEventListener("keyup",e=>{keys[e.code]=false;});
-    document.addEventListener("contextmenu",e=>e.preventDefault());
-
-    const forward=new THREE.Vector3(),right=new THREE.Vector3(),move=new THREE.Vector3();
-    let elapsed=0;
-    function animate(){
-      requestAnimationFrame(animate);
-      const dt=Math.min(clock.getDelta(),.04);elapsed+=dt;
-      waterMat.uniforms.uTime.value=elapsed;
-      fallMat.uniforms.uTime.value=elapsed;
-      if(leafMat.userData.windUniform)leafMat.userData.windUniform.value=elapsed;
-      for(let i=0;i<cloudRecords.length;i++){
-        const c=cloudRecords[i];c.x+=c.speed*dt;if(c.x>145)c.x=-145;
-        cloudDummy.position.set(c.x,c.y,c.z);cloudDummy.scale.set(c.sx,c.sy,c.sz);
-        cloudDummy.updateMatrix();cloudPuffs.setMatrixAt(i,cloudDummy.matrix);
-      }
-      cloudPuffs.instanceMatrix.needsUpdate=true;
-      const mp=mistGeo.attributes.position;
-      for(let i=0;i<mistCount;i++){mp.array[i*3]+=.09*dt*mistSpeeds[i];mp.array[i*3+1]+=Math.sin(elapsed*.25+i)*.0008;if(mp.array[i*3]>112)mp.array[i*3]=-112;}
-      mp.needsUpdate=true;
-      if(started){
-        camera.rotation.order="YXZ";camera.rotation.y=yaw;camera.rotation.x=pitch;
-        forward.set(-Math.sin(yaw),0,-Math.cos(yaw));right.set(Math.cos(yaw),0,-Math.sin(yaw));
-        move.set(0,0,0);
-        const forwardInput=(keys.KeyW||keys.ArrowUp)?1:Math.max(0,-touchMove.y);
-        const backwardInput=(keys.KeyS||keys.ArrowDown)?1:Math.max(0,touchMove.y);
-        const rightInput=(keys.KeyD||keys.ArrowRight)?1:Math.max(0,touchMove.x);
-        const leftInput=(keys.KeyA||keys.ArrowLeft)?1:Math.max(0,-touchMove.x);
-        move.addScaledVector(forward,forwardInput-backwardInput);
-        move.addScaledVector(right,rightInput-leftInput);
-        if(move.lengthSq()>0){move.normalize();const speed=keys.ShiftLeft||keys.ShiftRight?13:6.2;camera.position.addScaledVector(move,speed*dt);}
-        camera.position.x=clamp(camera.position.x,-112,112);camera.position.z=clamp(camera.position.z,-112,112);
-        const ground=terrainHeight(camera.position.x,camera.position.z)+1.72;
-        camera.position.y=lerp(camera.position.y,Math.max(ground,1.8),Math.min(1,dt*7));
-      }
-      renderer.render(scene,camera);
-    }
-    animate();
-    addEventListener("resize",()=>{
-      camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
-      renderer.setPixelRatio(Math.min(devicePixelRatio,isMobile?1.0:1.4));
+    document.getElementById("retry").onclick = () => location.reload();
+    start(fail).catch(error => {
+      console.error(error);
+      fail("The landscape could not start. Try reloading or using a browser with WebGL 2.");
     });
   </script>
 </body>

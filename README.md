@@ -1,63 +1,51 @@
 # MONSOON — The Living Western Ghats
 
-An immersive, interactive landscape inspired by Kerala after the monsoon. MONSOON is a quiet place to wander: a fictional valley shaped by the ecology and atmosphere of the Western Ghats.
+A quiet 3D valley inspired by Kerala’s Western Ghats just after rain. Follow the footpath downstream or walk up the valley to the waterfall. The landscape, foliage, water and ambient sound are generated in the browser.
 
-## Try it
+## Run locally
 
-Enable GitHub Pages for this repository (Settings → Pages → Deploy from a branch → main → /(root)), then visit:
+Start a static server from the project directory and open [http://localhost:8000](http://localhost:8000).
 
-https://melvinvarghese.github.io/monsoon/
+```sh
+python3 -m http.server 8000
+```
 
-The experience is a static site. It does not require a server, account, backend, or build step. Three.js is loaded as an ES module from jsDelivr, so an internet connection is required.
+The scene needs a browser with WebGL 2. Three.js r180 is included in `vendor/`, so the project needs no build step, backend, or third-party asset requests. The vendored library’s MIT license is in `vendor/LICENSE`.
 
-## Current build
+## Upload to GitHub Pages
 
-**Batch 1 — Foundation**
-- Higher-resolution folded valley terrain and layered, sculpted Western Ghats ridge meshes
-- A two-step animated waterfall and plunge pool
-- Instanced broadleaf rainforest canopy with branching trunks, curved fern fans and mossy rocks
-- Wind-swaying canopy shader, atmospheric sky gradient and drifting valley mist
-- A winding mountain stream with animated water
-- Drifting cloud banks and low valley mist
-- First-person keyboard movement and mouse-look
-- On-screen mobile joystick and touch-look controls
-- Minimal introduction screen and controls panel
-- Lightweight synthesized ambient sound toggle
-- Adaptive scene density for smaller screens
+1. Extract the ZIP and place its contents at the root of the repository, with `index.html` beside `landscape.js`. Include the hidden `.github` folder if you are uploading to a new repository.
+2. Commit the files to `main`.
+3. Under **Settings → Pages → Build and deployment**, select **GitHub Actions** as the source. The included workflow deploys on pushes to `main`. You can also run it manually from the **Actions** tab.
 
-## Controls
+The intended site is [melvinvarghese.github.io/monsoon](https://melvinvarghese.github.io/monsoon/).
 
-| Action | Control |
-|---|---|
-| Move | W A S D / arrow keys |
-| Look | Mouse (after entering) |
-| Move faster | Shift |
-| Release pointer | Esc |
-| Toggle ambient sound | M |
+## Explore
 
-On desktop, click **Enter the landscape** to capture the pointer. Press Escape to release it. On phones, use the on-screen joystick to walk and drag the right side of the screen to look around.
+| Action | Desktop | Touchscreen |
+| --- | --- | --- |
+| Walk | WASD or arrow keys | Left joystick |
+| Look | Mouse after entering, or drag if pointer lock is unavailable | Drag the right side |
+| Walk faster | Shift | — |
+| Return to entrance menu | Escape | Escape with a keyboard |
+| Toggle sound | M or sound button | Sound button |
+| Change graphics | Controls panel after releasing the pointer | Controls panel |
 
-## Development
+Auto quality adjusts the pixel ratio to frame rate. Low, Medium and High select fixed resolution budgets. Coarse-pointer devices start with fewer foliage instances and smaller ridge meshes. Reduced-motion settings freeze environmental animation while preserving camera controls.
 
-The project is a static site with a real-time Three.js scene and procedural geometry. Open `index.html` through a local static server while developing; ES modules are not reliably loaded from `file://` URLs.
+## Rendering and verification
 
-## Roadmap
+The scene uses a shared 512 × 256 cutout foliage atlas and instanced canopy cards and trunks. Rock and trail detail are part of the terrain material. Cloud movement, mist, wind, water and birds run in shaders. The waterfall follows a rock ledge into the stream. Audio combines synthesized wind, running water and occasional bird calls.
 
-1. Foundation and first valley
-2. Landscape detail and connected forest paths
-3. Waterfalls, richer water and atmospheric lighting
-4. Living vegetation and wildlife
-5. Dynamic weather and day/night cycle
-6. Additional connected locations
-7. Spatial environmental audio
-8. Further mobile optimisation and polish
+The table records Three.js render submissions at the starting camera, using a simulated WebGL interface. The baseline is commit `ddb6536`. These counts include shadow submissions on the original desktop scene. They measure scene workload, with pixel cost and physical GPU memory still to be measured.
 
-## Credits and technology
+| Scene mode | Original draw calls | New draw calls | Original submitted triangles | New submitted triangles |
+| --- | ---: | ---: | ---: | ---: |
+| Desktop | 29 | 17 | 820,092 | 85,790 |
+| Mobile settings | 28 | 17 | 396,696 | 65,600 |
 
-- [Three.js](https://threejs.org/) for real-time 3D rendering.
-- No third-party 3D models or landscape photographs are used in the scene.
-- The landscape is procedurally generated in the browser.
+All 11 generated shader programs compiled and linked with Mesa OpenGL ES 3 for both scene settings. Simulated input exercised keyboard movement, joystick movement, touch look and graphics preset selection. Full browser rendering, visual review, physical-device FPS and thermals, and the live Pages deployment remain to be verified.
 
-## License
+To take live measurements, add `?debug` to the URL. Press **1–3** to switch viewpoints, **B** to run the 20-second route, and **H** to hide or show the overlay. The benchmark prints mean FPS, 95th-percentile frame time, peak draw calls and triangles to the browser console. Select a fixed graphics preset to compare runs at the same resolution. The atlas memory figure is an estimate including mipmaps.
 
-MIT
+Visual and technical reference: [Abyssal Garden](https://github.com/Noniv/abyssal-garden).
