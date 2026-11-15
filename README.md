@@ -14,8 +14,9 @@ The experience is a static site. It does not require a server, account, backend,
 
 **Batch 1 — Foundation**
 - Higher-resolution folded valley terrain and layered, sculpted Western Ghats ridge meshes
+- A two-step animated waterfall and plunge pool
 - Instanced broadleaf rainforest canopy with branching trunks, curved fern fans and mossy rocks
-- Wind-swaying canopy shader and atmospheric sky gradient
+- Wind-swaying canopy shader, atmospheric sky gradient and drifting valley mist
 - A winding mountain stream with animated water
 - Drifting cloud banks and low valley mist
 - First-person keyboard movement and mouse-look
