@@ -401,7 +401,18 @@
     const waterMat=new THREE.ShaderMaterial({
       transparent:true,uniforms:{uTime:{value:0},uColor:{value:new THREE.Color(0x477c79)}},
       vertexShader:`varying vec2 vUv;varying vec3 vWorld;uniform float uTime;void main(){vUv=uv;vec3 p=position;p.y+=sin(p.z*.42+uTime*1.4)*.035+sin(p.x*.8-uTime)*.018;vec4 world=modelMatrix*vec4(p,1.);vWorld=world.xyz;gl_Position=projectionMatrix*viewMatrix*world;}`,
-      fragmentShader:`varying vec2 vUv;varying vec3 vWorld;uniform float uTime;uniform vec3 uColor;void main(){float ripple=sin(vUv.y*38.-uTime*2.)*.045+sin(vUv.y*13.+uTime)*.035;float glint=smoothstep(.94,1.,sin(vUv.y*71.+vUv.x*9.+uTime*2.));vec3 col=uColor+vec3(.12,.17,.13)*ripple+vec3(.22,.24,.18)*glint;gl_FragColor=vec4(col,.83);}`
+      fragmentShader:`varying vec2 vUv;varying vec3 vWorld;uniform float uTime;uniform vec3 uColor;void main(){
+        float waveA=sin(vUv.y*31.-uTime*1.7+sin(vUv.x*8.)*.7);
+        float waveB=sin(vUv.y*73.+uTime*2.2+vUv.x*13.);
+        float ripple=waveA*.035+waveB*.012;
+        float glint=smoothstep(.91,1.,sin(vUv.y*67.+vUv.x*11.+uTime*2.1));
+        float caustic=pow(max(0.,sin(vWorld.x*1.7+uTime*.7)*sin(vWorld.z*1.25-uTime*.55)),5.);
+        vec3 viewDir=normalize(cameraPosition-vWorld);
+        float fresnel=pow(1.-max(dot(viewDir,vec3(0.,1.,0.)),0.),3.);
+        vec3 col=uColor+vec3(.12,.17,.13)*ripple+vec3(.22,.24,.18)*glint;
+        col=mix(col,vec3(.68,.81,.75),fresnel*.34+caustic*.10);
+        gl_FragColor=vec4(col,.78+fresnel*.12);
+      }`
     });
     const water=new THREE.Mesh(waterGeo,waterMat);water.renderOrder=2;scene.add(water);
 
