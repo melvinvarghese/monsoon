@@ -190,52 +190,39 @@
     const terrain=new THREE.Mesh(terrainGeo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.96,metalness:0}));
     terrain.receiveShadow=true;scene.add(terrain);
 
-    // Distant layered ridgelines establish the Western Ghats horizon.
-    setProgress(25,"Raising the mountain ridges");
-    function makeRidge(x,z,scaleX,scaleY,scaleZ,seed){
-      const r=seeded(seed),g=new THREE.ConeGeometry(1,1,18,5);
-      const a=g.attributes.position;
-      for(let i=0;i<a.count;i++){const y=a.getY(i);if(y>-.49){a.setX(i,a.getX(i)*(1+(r()-.5)*.16));a.setZ(i,a.getZ(i)*(1+(r()-.5)*.16));}}
-      g.computeVertexNormals();
-      const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x425c4d,roughness:1,flatShading:true}));
-      m.position.set(x,scaleY*.48+terrainHeight(x,z)*.35,z);m.scale.set(scaleX,scaleY,scaleZ);m.castShadow=!isMobile;m.receiveShadow=true;scene.add(m);
-      const haze=new THREE.Mesh(new THREE.ConeGeometry(1,1,18,3),new THREE.MeshBasicMaterial({color:0x9eb2a9,transparent:true,opacity:.09,depthWrite:false}));
-      haze.position.copy(m.position);haze.position.y+=scaleY*.09;haze.scale.set(scaleX*1.08,scaleY*1.03,scaleZ*1.08);scene.add(haze);
+    // Sculpted mountain walls: overlapping ridge silhouettes with natural variation.
+    setProgress(25,"Raising the Western Ghats");
+    function buildRange(zBase,width,depth,height,seed,tint){
+      const r=seeded(seed),nx=isMobile?100:160,nz=20,vertices=[],indices=[],colors=[],peaks=[];
+      for(let p=0;p<15;p++)peaks.push({x:(r()-.5)*width*.96,w:9+r()*24,h:height*(.4+r()*.75)});
+      for(let iz=0;iz<=nz;iz++){const v=iz/nz,z=(v-.5)*depth;for(let ix=0;ix<=nx;ix++){
+        const x=(ix/nx-.5)*width;let ridge=0;for(const p of peaks)ridge=Math.max(ridge,p.h*Math.exp(-Math.pow((x-p.x)/p.w,2)));
+        const edge=Math.pow(Math.sin(Math.PI*v),.42),y=1.5+ridge*edge+fbm(x+seed,z+seed)*height*.055*edge;
+        vertices.push(x,y,z);const c=new THREE.Color(tint).multiplyScalar(clamp(.76+ridge/height*.25+fbm(x,z)*.025,.55,1.08));colors.push(c.r,c.g,c.b);
+        if(ix<nx&&iz<nz){const q=iz*(nx+1)+ix,k=q+nx+1;indices.push(q,k,q+1,k,k+1,q+1);}
+      }}
+      const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(vertices,3));g.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));g.setIndex(indices);g.computeVertexNormals();
+      const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,side:THREE.DoubleSide}));m.position.z=zBase;m.receiveShadow=true;scene.add(m);
     }
-    for(let i=0;i<19;i++){
-      const x=-150+i*16.5,z=-105-(random()*24),h=32+random()*40;
-      makeRidge(x,z,17+random()*13,h,19+random()*14,100+i);
-    }
+    buildRange(-151,390,76,49,301,0x536e5c);buildRange(-207,440,92,64,602,0x71877b);buildRange(-266,480,110,76,903,0x9aada1);
 
-    // Tree geometry is shared and instanced to keep the forest inexpensive.
-    setProgress(40,"Growing the forest");
-    const trunkGeo=new THREE.CylinderGeometry(.22,.42,5.4,6);
-    const crownGeo=new THREE.ConeGeometry(2.6,7.8,7,3);
-    const crown2Geo=new THREE.ConeGeometry(2.05,5.4,7,2);
-    const trunkMat=new THREE.MeshStandardMaterial({color:0x4c3929,roughness:1});
-    const crownMat=new THREE.MeshStandardMaterial({color:0x31583d,roughness:1,flatShading:true});
-    const crown2Mat=new THREE.MeshStandardMaterial({color:0x426947,roughness:1,flatShading:true});
-    const treeCount=isMobile?280:520;
-    const trunks=new THREE.InstancedMesh(trunkGeo,trunkMat,treeCount);
-    const crowns=new THREE.InstancedMesh(crownGeo,crownMat,treeCount);
-    const crowns2=new THREE.InstancedMesh(crown2Geo,crown2Mat,treeCount);
-    trunks.castShadow=crowns.castShadow=crowns2.castShadow=!isMobile;
-    const dummy=new THREE.Object3D();
-    let placed=0,attempts=0;
-    while(placed<treeCount && attempts<treeCount*8){
-      attempts++;
-      const x=(random()-.5)*218,z=(random()-.5)*218;
-      const pathDist=Math.abs(x-riverX(z));
-      if(pathDist<8 || (Math.abs(x)<11 && z>0 && z<55))continue;
-      const y=terrainHeight(x,z),scale=.72+random()*.8;
-      dummy.position.set(x,y+2.4*scale,z);dummy.rotation.set(0,random()*Math.PI*2,0);dummy.scale.set(scale,scale,scale);dummy.updateMatrix();trunks.setMatrixAt(placed,dummy.matrix);
-      dummy.position.y=y+5.3*scale;dummy.scale.set(scale,scale,scale);dummy.updateMatrix();crowns.setMatrixAt(placed,dummy.matrix);
-      dummy.position.y=y+6.8*scale;dummy.scale.set(scale*.82,scale*.82,scale*.82);dummy.updateMatrix();crowns2.setMatrixAt(placed,dummy.matrix);
-      const shade=.78+random()*.42;crowns.setColorAt(placed,new THREE.Color().setHSL(.30+random()*.045,.28, .22+random()*.1).multiplyScalar(shade));
-      placed++;
+    // A layered broadleaf canopy: tapered trunks, branching limbs and irregular leaf masses.
+    setProgress(40,"Growing the rainforest");
+    const trunkGeo=new THREE.CylinderGeometry(.16,.34,1,7,2),branchGeo=new THREE.CylinderGeometry(.055,.13,1,6,1),leafGeo=new THREE.SphereGeometry(1,9,7);
+    const bark=new THREE.MeshStandardMaterial({color:0x49382b,roughness:1}),leafMat=new THREE.MeshStandardMaterial({color:0x31563a,roughness:1,vertexColors:true});
+    const treeCount=isMobile?230:440,trunks=new THREE.InstancedMesh(trunkGeo,bark,treeCount),branches=new THREE.InstancedMesh(branchGeo,bark,treeCount*3),canopy=new THREE.InstancedMesh(leafGeo,leafMat,treeCount*7);
+    const dummy=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),axis=new THREE.Vector3();
+    function putSegment(mesh,index,start,end,r){axis.subVectors(end,start);dummy.position.copy(start).add(end).multiplyScalar(.5);dummy.quaternion.setFromUnitVectors(up,axis.clone().normalize());dummy.scale.set(r,axis.length(),r);dummy.updateMatrix();mesh.setMatrixAt(index,dummy.matrix);}
+    let treeN=0,branchN=0,leafN=0,tries=0;
+    while(treeN<treeCount&&tries<treeCount*12){tries++;const x=(random()-.5)*244,z=(random()-.5)*244;if(Math.abs(x-riverX(z))<10||(Math.abs(x)<9&&z>0&&z<58))continue;
+      const y=terrainHeight(x,z),h=5.5+random()*5.8,spread=2.8+random()*2.6,lx=(random()-.5)*1.2,lz=(random()-.5)*1.2;
+      const base=new THREE.Vector3(x,y,z),top=new THREE.Vector3(x+lx,y+h,z+lz);putSegment(trunks,treeN,base,top,.22+random()*.13);
+      for(let k=0;k<3;k++){const t=.48+k*.13,root=new THREE.Vector3(x+lx*t,y+h*t,z+lz*t),ang=random()*Math.PI*2,len=spread*(.65+random()*.55),tip=root.clone().add(new THREE.Vector3(Math.cos(ang)*len,1.2+random()*1.5,Math.sin(ang)*len));putSegment(branches,branchN++,root,tip,.075+random()*.035);}
+      const hue=.285+random()*.075,light=.20+random()*.09;
+      for(let k=0;k<7;k++){const ang=random()*Math.PI*2,rad=spread*(.35+random()*.72);dummy.position.set(x+Math.cos(ang)*rad+lx*.8,y+h*(.67+random()*.38)+(random()-.5)*1.5,z+Math.sin(ang)*rad+lz*.8);dummy.rotation.set((random()-.5)*.55,random()*Math.PI*2,(random()-.5)*.55);dummy.scale.set(1.7+random()*1.5,1+random()*.9,1.5+random()*1.5);dummy.updateMatrix();canopy.setMatrixAt(leafN,dummy.matrix);canopy.setColorAt(leafN,new THREE.Color().setHSL(hue,.32,light+random()*.045));leafN++;}
+      treeN++;
     }
-    trunks.count=crowns.count=crowns2.count=placed;scene.add(trunks,crowns,crowns2);
-
+    trunks.count=treeN;branches.count=branchN;canopy.count=leafN;trunks.castShadow=branches.castShadow=canopy.castShadow=!isMobile;trunks.receiveShadow=canopy.receiveShadow=true;scene.add(trunks,branches,canopy);
     // Clusters of small vegetation soften the forest floor.
     setProgress(55,"Covering the forest floor");
     const fernGeo=new THREE.ConeGeometry(.34,1.65,5,2);
