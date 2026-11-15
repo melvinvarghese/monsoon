@@ -359,10 +359,12 @@
         camera.rotation.order="YXZ";camera.rotation.y=yaw;camera.rotation.x=pitch;
         forward.set(-Math.sin(yaw),0,-Math.cos(yaw));right.set(Math.cos(yaw),0,-Math.sin(yaw));
         move.set(0,0,0);
-        if(keys.KeyW||keys.ArrowUp||touchMove.y<-.12)move.addScaledVector(forward,Math.max(0,-touchMove.y));
-        if(keys.KeyS||keys.ArrowDown||touchMove.y>.12)move.addScaledVector(forward,-Math.max(0,touchMove.y));
-        if(keys.KeyD||keys.ArrowRight||touchMove.x>.12)move.addScaledVector(right,Math.max(0,touchMove.x));
-        if(keys.KeyA||keys.ArrowLeft||touchMove.x<-.12)move.addScaledVector(right,-Math.max(0,-touchMove.x));
+        const forwardInput=(keys.KeyW||keys.ArrowUp)?1:Math.max(0,-touchMove.y);
+        const backwardInput=(keys.KeyS||keys.ArrowDown)?1:Math.max(0,touchMove.y);
+        const rightInput=(keys.KeyD||keys.ArrowRight)?1:Math.max(0,touchMove.x);
+        const leftInput=(keys.KeyA||keys.ArrowLeft)?1:Math.max(0,-touchMove.x);
+        move.addScaledVector(forward,forwardInput-backwardInput);
+        move.addScaledVector(right,rightInput-leftInput);
         if(move.lengthSq()>0){move.normalize();const speed=keys.ShiftLeft||keys.ShiftRight?13:6.2;camera.position.addScaledVector(move,speed*dt);}
         camera.position.x=clamp(camera.position.x,-112,112);camera.position.z=clamp(camera.position.z,-112,112);
         const ground=terrainHeight(camera.position.x,camera.position.z)+1.72;
