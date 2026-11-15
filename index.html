@@ -246,7 +246,7 @@
       shader.vertexShader=shader.vertexShader.replace("#include <common>","#include <common>\nuniform float uWindTime;");
       shader.vertexShader=shader.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\ntransformed.x += sin(uWindTime + position.y*2.1 + position.x*1.7)*0.055*position.y;\ntransformed.z += cos(uWindTime*.83 + position.x*2.0)*0.028*position.y;");
     };
-    const treeCount=isMobile?230:440,trunks=new THREE.InstancedMesh(trunkGeo,bark,treeCount),branches=new THREE.InstancedMesh(branchGeo,bark,treeCount*6),canopy=new THREE.InstancedMesh(leafGeo,leafMat,treeCount*9);
+    const treeCount=isMobile?230:440,trunks=new THREE.InstancedMesh(trunkGeo,bark,treeCount),branches=new THREE.InstancedMesh(branchGeo,bark,treeCount*10),canopy=new THREE.InstancedMesh(leafGeo,leafMat,treeCount*9);
     const dummy=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),axis=new THREE.Vector3();
     function putSegment(mesh,index,start,end,r){axis.subVectors(end,start);dummy.position.copy(start).add(end).multiplyScalar(.5);dummy.quaternion.setFromUnitVectors(up,axis.clone().normalize());dummy.scale.set(r,axis.length(),r);dummy.updateMatrix();mesh.setMatrixAt(index,dummy.matrix);}
     let treeN=0,branchN=0,leafN=0,tries=0;
