@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#101d19">
   <meta name="description" content="MONSOON — an immersive, interactive landscape inspired by Kerala's Western Ghats.">
   <title>MONSOON — The Living Western Ghats</title>
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
   <style>
     :root{color-scheme:dark;--ink:#edf3ed;--muted:#aab9ae;--line:rgba(230,241,231,.18);--glass:rgba(12,25,21,.58);--accent:#c5d8b8}
     *{box-sizing:border-box}
@@ -100,7 +101,7 @@
 
   <noscript><style>.loader{display:none}</style><p role="alert" style="position:fixed;z-index:10;bottom:1rem;padding:1rem">Enable JavaScript to explore MONSOON.</p></noscript>
   <script type="module">
-    import { start } from "./landscape.js";
+    import { start } from "./landscape.js?v=reference-pass-20261116";
     const fail = (message) => {
       document.getElementById("loaderLabel").textContent = message;
       document.getElementById("retry").hidden = false;
